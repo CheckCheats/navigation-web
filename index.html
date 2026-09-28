@@ -163,10 +163,12 @@
             color: var(--ink-mute);
             font-weight: 400;
             flex-shrink: 0;
+            margin-left: auto;
             max-width: 42%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            text-align: right;
         }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover,
@@ -1766,12 +1768,21 @@
                 });
                 return scored.slice(0, limit || 12).map(({ item }) => {
                     const preferZhName = preferZh && item.zh;
+                    const label = preferZhName ? item.zh : (item.en || item.slug);
+                    // Always keep the other language on the right; never drop EN for ZH labels.
+                    let meta = preferZhName
+                        ? (item.en || String(item.slug || '').replace(/_/g, ' '))
+                        : (item.zh || '');
+                    if (meta && String(meta).toLowerCase() === String(label).toLowerCase()) {
+                        meta = preferZhName ? String(item.slug || '').replace(/_/g, ' ') : '';
+                        if (meta && String(meta).toLowerCase() === String(label).toLowerCase()) meta = '';
+                    }
                     return {
                         slug: item.slug,
                         en: item.en,
                         zh: item.zh,
-                        label: preferZhName ? item.zh : item.en,
-                        meta: preferZhName ? item.en : (item.zh || item.slug),
+                        label,
+                        meta,
                         preferZh
                     };
                 });
@@ -1857,7 +1868,10 @@
             
             function renderSuggestions(suggestList, metaList) {
                 suggestionsBox.innerHTML = '';
-                suggestionMeta = Array.isArray(metaList) ? metaList : [];
+                // Keep prior meta when re-showing (e.g. focus); only replace when caller passes a list.
+                if (arguments.length > 1) {
+                    suggestionMeta = Array.isArray(metaList) ? metaList.slice() : [];
+                }
                 if(!suggestList || suggestList.length === 0) { hideSuggestions(); return; }
                 suggestList.forEach((item, idx) => {
                     const div = document.createElement('div');
@@ -1865,8 +1879,9 @@
                     div.style.setProperty('--i', idx);
                     if(idx === selectedIndex) div.classList.add('active');
                     const meta = suggestionMeta[idx];
-                    const metaHtml = meta && meta.meta
-                        ? `<span class="suggestion-meta">${escapeHtml(meta.meta)}</span>`
+                    const metaText = meta && meta.meta ? String(meta.meta) : '';
+                    const metaHtml = metaText
+                        ? `<span class="suggestion-meta">${escapeHtml(metaText)}</span>`
                         : '';
                     div.innerHTML = `<span class="suggestion-text">${escapeHtml(item)}</span>${metaHtml}`;
                     div.addEventListener('click', (e) => {
@@ -1984,8 +1999,9 @@
                         if(!isSuggestionEnabled() || searchInput.value.trim() !== kw) return;
                         currentSuggestions = sugs;
                         selectedIndex = -1;
-                        if(currentSuggestions.length && isSuggestionEnabled() && searchInput.value.trim() === kw) renderSuggestions(currentSuggestions);
-                        else hideSuggestions();
+                        if(currentSuggestions.length && isSuggestionEnabled() && searchInput.value.trim() === kw) {
+                            renderSuggestions(currentSuggestions, []);
+                        } else hideSuggestions();
                     });
                 }, 280);
             }
@@ -2042,7 +2058,11 @@
             
             searchInput.addEventListener('input', (e) => { if(isKeyboardSelecting) return; triggerSuggestionsDebounced(); });
             searchInput.addEventListener('keydown', handleKeydown);
-            searchInput.addEventListener('focus', () => { if(isSuggestionEnabled() && currentSuggestions.length) renderSuggestions(currentSuggestions); });
+            searchInput.addEventListener('focus', () => {
+                if (isSuggestionEnabled() && currentSuggestions.length) {
+                    renderSuggestions(currentSuggestions, suggestionMeta);
+                }
+            });
             
 
 
