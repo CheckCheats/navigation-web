@@ -1069,6 +1069,43 @@
             background: rgba(156, 61, 50, 0.12);
             color: var(--cinnabar);
         }
+
+        /* recent + custom engines + drag */
+        .suggestion-item.recent-item .suggestion-meta { font-variant: normal; }
+        .recent-clear-hint {
+            display: block;
+            padding: 8px 16px 10px;
+            font-size: 11px;
+            color: var(--ink-mute);
+            border-top: 1px solid var(--line);
+            cursor: pointer;
+            text-align: right;
+        }
+        .recent-clear-hint:hover { color: var(--cinnabar); }
+        .bookmark-item[draggable="true"] { cursor: grab; }
+        .bookmark-item.dragging { opacity: 0.45; }
+        .bookmark-item.drag-over {
+            outline: 2px dashed var(--brass);
+            outline-offset: 2px;
+        }
+        .edit-mode .bookmark-item { cursor: grab; }
+        .custom-engine-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+        .custom-engine-row {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 10px; background: var(--cream-inset);
+            border-radius: var(--radius-s); border: 1px solid var(--line);
+            font-size: 12px;
+        }
+        .custom-engine-row .ce-name { font-weight: 600; color: var(--ink); flex: 0 0 auto; max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .custom-engine-row .ce-url { flex: 1; color: var(--ink-mute); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+        .custom-engine-row .ce-del {
+            border: none; background: transparent; color: var(--ink-mute);
+            cursor: pointer; font-size: 14px; line-height: 1; padding: 2px 6px;
+        }
+        .custom-engine-row .ce-del:hover { color: var(--cinnabar); }
+        .settings-hint { font-size: 11px; color: var(--ink-mute); margin: 4px 0 0; line-height: 1.45; }
+        .settings-actions { flex-wrap: wrap; }
+
         #settings-file-import { display: none; }
 
         body.hide-sites .sites-list { display: none; }
@@ -1445,10 +1482,30 @@
                     </div>
                 </div>
 
-                <div class="settings-actions">
-                    <button type="button" class="btn-ghost" id="settings-export">导出</button>
-                    <button type="button" class="btn-ghost" id="settings-import">导入</button>
-                    <button type="button" class="btn-danger" id="settings-reset">重置</button>
+                <div class="settings-section">
+                    <h4>自定义搜索引擎</h4>
+                    <p class="settings-hint">URL 用 %s 表示关键词，例如 https://example.com/search?q=%s</p>
+                    <div class="settings-grid">
+                        <div class="settings-field"><label>名称</label><input type="text" id="ce-name" maxlength="20" placeholder="引擎名"></div>
+                        <div class="settings-field"><label>占位提示</label><input type="text" id="ce-placeholder" maxlength="40" placeholder="搜索提示"></div>
+                        <div class="settings-field span2"><label>搜索 URL</label><input type="url" id="ce-url" placeholder="https://...?q=%s"></div>
+                    </div>
+                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
+                        <button type="button" class="btn-ghost" id="ce-add">添加引擎</button>
+                    </div>
+                    <div id="custom-engine-list" class="custom-engine-list"></div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>数据备份</h4>
+                    <p class="settings-hint">导出/导入包含：界面设置、书签、快链、自定义引擎、最近搜索。换设备时导入即可恢复。</p>
+                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
+                        <button type="button" class="btn-ghost" id="settings-export">导出全部</button>
+                        <button type="button" class="btn-ghost" id="settings-import">导入全部</button>
+                        <button type="button" class="btn-ghost" id="settings-copy-backup">复制备份</button>
+                        <button type="button" class="btn-ghost" id="settings-clear-recent">清空最近搜索</button>
+                        <button type="button" class="btn-danger" id="settings-reset">重置界面</button>
+                    </div>
                 </div>
                 <input type="file" id="settings-file-import" accept=".json,application/json">
             </div>
@@ -1478,6 +1535,7 @@
                         <li><input type="radio" name="type" id="type-wfwiki" value="https://warframe.huijiwiki.com/index.php?title=特殊:搜索&search=" data-placeholder="warframe搜索"><label for="type-wfwiki">WF wiki</label></li>
                         <li><input type="radio" name="type" id="type-wfmarket" value="wf-market" data-placeholder="WF Market 中/英物品价"><label for="type-wfmarket">WF market</label></li>
                         <li><input type="radio" name="type" id="type-mcwiki" value="https://search.mcmod.cn/s?key=" data-placeholder="MC百科搜索"><label for="type-mcwiki">MC百科</label></li>
+                        <!-- custom engines injected here -->
                     </ul>
                 </div>
                 <div class="search-group group-c"><span class="type-text">图片</span><ul class="search-type">
@@ -1606,7 +1664,7 @@
                     e.stopPropagation();
                     const targetId = label.getAttribute('for');
                     searchGroups.forEach(g => g.classList.remove('s-current'));
-                    if(targetId === 'type-bing1' || targetId === 'type-baidu' || targetId === 'type-wfwiki' || targetId === 'type-wfmarket' || targetId === 'type-mcwiki') document.querySelector('.group-a')?.classList.add('s-current');
+                    if(targetId === 'type-bing1' || targetId === 'type-baidu' || targetId === 'type-wfwiki' || targetId === 'type-wfmarket' || targetId === 'type-mcwiki' || (targetId && targetId.startsWith('type-custom-'))) document.querySelector('.group-a')?.classList.add('s-current');
                     else if(targetId === 'type-bilibili' || targetId === 'type-douyin' || targetId === 'type-gaoqing' || targetId === 'type-youku') document.querySelector('.group-e')?.classList.add('s-current');
                     else if(targetId === 'type-pexels' || targetId.includes('dribbble') || targetId.includes('wallhaven') || targetId.includes('freepik') || targetId.includes('iconfont') || targetId.includes('baidu-images')) document.querySelector('.group-c')?.classList.add('s-current');
                     else if(targetId === 'type-163' || targetId.includes('music') || targetId === 'type-xiami') document.querySelector('.group-d')?.classList.add('s-current');
@@ -1822,18 +1880,21 @@
                 }
             }
             
+            function buildEngineSearchUrl(engineValue, keyword) {
+                const q = encodeURIComponent(String(keyword || '').trim());
+                const v = String(engineValue || '');
+                if (v.includes('%s')) return v.split('%s').join(q);
+                return v + q;
+            }
             function performSearch(keyword) {
                 if(!keyword || !keyword.trim()) return;
+                const q = keyword.trim();
+                rememberRecentSearch(q);
                 if (isWfMarket()) {
-                    performWfMarketSearch(keyword);
+                    performWfMarketSearch(q);
                     return;
                 }
-                let finalUrl;
-                if (currentType === WF_WIKI_SEARCH_URL) {
-                    finalUrl = WF_WIKI_SEARCH_URL + encodeURIComponent(keyword.trim());
-                } else {
-                    finalUrl = currentType + encodeURIComponent(keyword.trim());
-                }
+                const finalUrl = buildEngineSearchUrl(currentType, q);
                 window.open(finalUrl, '_blank');
             }
             if(searchForm) {
@@ -2056,9 +2117,18 @@
                 if(!suggestionsBox.contains(e.target) && e.target !== searchInput) hideSuggestions();
             });
             
-            searchInput.addEventListener('input', (e) => { if(isKeyboardSelecting) return; triggerSuggestionsDebounced(); });
+            searchInput.addEventListener('input', (e) => {
+                if (isKeyboardSelecting) return;
+                if (!searchInput.value.trim()) { showRecentSuggestions(); return; }
+                triggerSuggestionsDebounced();
+            });
             searchInput.addEventListener('keydown', handleKeydown);
             searchInput.addEventListener('focus', () => {
+                const kw = searchInput.value.trim();
+                if (!kw) {
+                    showRecentSuggestions();
+                    return;
+                }
                 if (isSuggestionEnabled() && currentSuggestions.length) {
                     renderSuggestions(currentSuggestions, suggestionMeta);
                 }
@@ -2356,6 +2426,231 @@
             }
 
 
+            // ========== 最近搜索 / 自定义引擎 / 全量备份 ==========
+            const CUSTOM_ENGINES_KEY = 'nav_custom_engines_v1';
+            const RECENT_SEARCHES_KEY = 'nav_recent_searches_v1';
+            const RECENT_MAX = 16;
+            let customEngines = [];
+            let recentSearches = [];
+
+            function loadCustomEngines() {
+                try {
+                    const raw = localStorage.getItem(CUSTOM_ENGINES_KEY);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    customEngines = Array.isArray(parsed) ? parsed.filter(e => e && e.id && e.name && e.url) : [];
+                } catch (e) { customEngines = []; }
+            }
+            function saveCustomEngines() {
+                try { localStorage.setItem(CUSTOM_ENGINES_KEY, JSON.stringify(customEngines)); } catch (e) {}
+            }
+            function loadRecentSearches() {
+                try {
+                    const raw = localStorage.getItem(RECENT_SEARCHES_KEY);
+                    const parsed = raw ? JSON.parse(raw) : [];
+                    recentSearches = Array.isArray(parsed) ? parsed.filter(x => x && x.q).slice(0, RECENT_MAX) : [];
+                } catch (e) { recentSearches = []; }
+            }
+            function saveRecentSearches() {
+                try { localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(recentSearches.slice(0, RECENT_MAX))); } catch (e) {}
+            }
+            function rememberRecentSearch(q) {
+                const query = String(q || '').trim();
+                if (!query) return;
+                const engineLabel = getCurrentEngineLabel();
+                recentSearches = [
+                    { q: query, engine: engineLabel, type: currentType, ts: Date.now() },
+                    ...recentSearches.filter(x => x.q !== query)
+                ].slice(0, RECENT_MAX);
+                saveRecentSearches();
+            }
+            function getCurrentEngineLabel() {
+                const checked = document.querySelector('input[name="type"]:checked');
+                if (checked) {
+                    const lab = document.querySelector(`label[for="${checked.id}"]`);
+                    if (lab) return lab.textContent.trim();
+                }
+                return currentPlaceholder || '搜索';
+            }
+            function clearRecentSearches() {
+                recentSearches = [];
+                saveRecentSearches();
+                clearSuggestionsAndHide();
+                showToastMessage('已清空最近搜索');
+            }
+            function showRecentSuggestions() {
+                if (!recentSearches.length) { clearSuggestionsAndHide(); return; }
+                const labels = recentSearches.map(r => r.q);
+                const metas = recentSearches.map(r => ({ meta: r.engine || '最近' }));
+                currentSuggestions = labels;
+                selectedIndex = -1;
+                renderSuggestions(labels, metas);
+                // append clear row
+                const clear = document.createElement('div');
+                clear.className = 'recent-clear-hint';
+                clear.textContent = '清空最近搜索';
+                clear.addEventListener('mousedown', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clearRecentSearches();
+                });
+                suggestionsBox.appendChild(clear);
+            }
+            function engineDomId(eng) { return 'type-custom-' + eng.id; }
+            function normalizeEngineUrl(url) {
+                let u = String(url || '').trim();
+                if (!u) return '';
+                if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+                return u;
+            }
+            function renderCustomEnginesIntoSearch() {
+                const ul = document.querySelector('.search-group.group-a .search-type');
+                if (!ul) return;
+                ul.querySelectorAll('li[data-custom-engine]').forEach(n => n.remove());
+                customEngines.forEach(eng => {
+                    const id = engineDomId(eng);
+                    const li = document.createElement('li');
+                    li.setAttribute('data-custom-engine', eng.id);
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = 'type';
+                    input.id = id;
+                    input.value = eng.url;
+                    input.setAttribute('data-placeholder', eng.placeholder || eng.name);
+                    input.setAttribute('data-custom', '1');
+                    const label = document.createElement('label');
+                    label.htmlFor = id;
+                    label.textContent = eng.name;
+                    li.appendChild(input);
+                    li.appendChild(label);
+                    ul.appendChild(li);
+                    input.addEventListener('change', function() {
+                        updateCurrentEngine(this.value, this.getAttribute('data-placeholder') || '搜索...');
+                    });
+                });
+                refreshDefaultEngineOptions();
+            }
+            function refreshDefaultEngineOptions() {
+                const sel = document.getElementById('pref-defaultEngine');
+                if (!sel) return;
+                const keep = prefs?.defaultEngine || sel.value;
+                // remove previous custom options
+                sel.querySelectorAll('option[data-custom="1"]').forEach(o => o.remove());
+                customEngines.forEach(eng => {
+                    const opt = document.createElement('option');
+                    opt.value = engineDomId(eng);
+                    opt.textContent = eng.name;
+                    opt.setAttribute('data-custom', '1');
+                    sel.appendChild(opt);
+                });
+                if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+            }
+            function renderCustomEngineSettingsList() {
+                const box = document.getElementById('custom-engine-list');
+                if (!box) return;
+                box.innerHTML = '';
+                if (!customEngines.length) {
+                    box.innerHTML = '<p class="settings-hint">暂无自定义引擎</p>';
+                    return;
+                }
+                customEngines.forEach((eng, idx) => {
+                    const row = document.createElement('div');
+                    row.className = 'custom-engine-row';
+                    row.innerHTML = `<span class="ce-name">${escapeHtml(eng.name)}</span><span class="ce-url">${escapeHtml(eng.url)}</span>`;
+                    const del = document.createElement('button');
+                    del.type = 'button';
+                    del.className = 'ce-del';
+                    del.title = '删除';
+                    del.textContent = '✕';
+                    del.addEventListener('click', () => {
+                        if (!confirm(`删除引擎「${eng.name}」？`)) return;
+                        customEngines.splice(idx, 1);
+                        saveCustomEngines();
+                        renderCustomEnginesIntoSearch();
+                        renderCustomEngineSettingsList();
+                        showToastMessage('已删除引擎');
+                    });
+                    row.appendChild(del);
+                    box.appendChild(row);
+                });
+            }
+            function addCustomEngineFromForm() {
+                const name = (document.getElementById('ce-name')?.value || '').trim();
+                const urlRaw = (document.getElementById('ce-url')?.value || '').trim();
+                const placeholder = (document.getElementById('ce-placeholder')?.value || '').trim() || name;
+                const url = normalizeEngineUrl(urlRaw);
+                if (!name || !url) return showToastMessage('请填写名称和 URL');
+                if (customEngines.some(e => e.name === name)) return showToastMessage('引擎名称已存在');
+                const id = 'ce' + Date.now().toString(36);
+                customEngines.push({ id, name, url, placeholder });
+                saveCustomEngines();
+                renderCustomEnginesIntoSearch();
+                renderCustomEngineSettingsList();
+                document.getElementById('ce-name').value = '';
+                document.getElementById('ce-url').value = '';
+                document.getElementById('ce-placeholder').value = '';
+                showToastMessage(`已添加引擎「${name}」`);
+            }
+            function collectFullBackup() {
+                return {
+                    version: 'nav-2',
+                    exportedAt: new Date().toISOString(),
+                    prefs,
+                    bookmarks,
+                    shortcuts,
+                    customEngines,
+                    recentSearches
+                };
+            }
+            function downloadJson(filename, data) {
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = filename; a.click();
+                URL.revokeObjectURL(url);
+            }
+            function applyFullBackup(raw, opts = {}) {
+                if (!raw || typeof raw !== 'object') throw new Error('bad');
+                // accept nav-2, ui-1, favorites 1.0, or plain prefs
+                const nextPrefs = raw.prefs || (raw.theme || raw.defaultEngine || raw.accent ? raw : null);
+                const nextBookmarks = Array.isArray(raw.bookmarks) ? raw.bookmarks : null;
+                const nextShortcuts = Array.isArray(raw.shortcuts) ? raw.shortcuts : null;
+                const nextEngines = Array.isArray(raw.customEngines) ? raw.customEngines : null;
+                const nextRecent = Array.isArray(raw.recentSearches) ? raw.recentSearches : null;
+
+                if (nextPrefs && typeof nextPrefs === 'object' && !Array.isArray(nextPrefs)) {
+                    prefs = { ...DEFAULT_PREFS, ...nextPrefs };
+                    savePrefs();
+                }
+                if (nextBookmarks) {
+                    bookmarks = nextBookmarks.map(b => ({ ...b, special: !!b.special }));
+                    saveBookmarks();
+                }
+                if (nextShortcuts) {
+                    shortcuts = nextShortcuts;
+                    saveShortcuts();
+                }
+                if (nextEngines) {
+                    customEngines = nextEngines.filter(e => e && e.id && e.name && e.url);
+                    saveCustomEngines();
+                    renderCustomEnginesIntoSearch();
+                    renderCustomEngineSettingsList();
+                }
+                if (nextRecent) {
+                    recentSearches = nextRecent.filter(x => x && x.q).slice(0, RECENT_MAX);
+                    saveRecentSearches();
+                }
+                // old array-only bookmark dump
+                if (Array.isArray(raw) && opts.allowArray) {
+                    bookmarks = raw.map(b => ({ ...b, special: !!b.special }));
+                    saveBookmarks();
+                }
+                applyPrefs({ applyEngine: true });
+                syncPrefsForm();
+                if (typeof renderBookmarks === 'function') renderBookmarks();
+                if (typeof renderShortcutsInline === 'function') renderShortcutsInline();
+            }
+
+
             // ========== 界面自定义设置 ==========
             const PREFS_KEY = 'nav_ui_prefs_v1';
             const THEME_PRESETS = {
@@ -2623,15 +2918,26 @@
                     showToastMessage('已恢复默认界面');
                 });
                 document.getElementById('settings-export')?.addEventListener('click', () => {
-                    const blob = new Blob([JSON.stringify({ version: 'ui-1', prefs }, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `nav_ui_prefs_${new Date().toISOString().slice(0,10)}.json`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    showToastMessage('已导出界面设置');
+                    downloadJson(`nav_backup_${new Date().toISOString().slice(0,10)}.json`, collectFullBackup());
+                    showToastMessage('已导出全部数据');
                 });
+                document.getElementById('settings-copy-backup')?.addEventListener('click', async () => {
+                    const text = JSON.stringify(collectFullBackup(), null, 2);
+                    try {
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            await navigator.clipboard.writeText(text);
+                        } else {
+                            const ta = document.createElement('textarea');
+                            ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+                            document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+                        }
+                        showToastMessage('备份已复制到剪贴板');
+                    } catch (err) {
+                        showToastMessage('复制失败，请用导出');
+                    }
+                });
+                document.getElementById('settings-clear-recent')?.addEventListener('click', () => clearRecentSearches());
+                document.getElementById('ce-add')?.addEventListener('click', () => addCustomEngineFromForm());
                 document.getElementById('settings-import')?.addEventListener('click', () => {
                     document.getElementById('settings-file-import')?.click();
                 });
@@ -2642,15 +2948,11 @@
                     reader.onload = (ev) => {
                         try {
                             const raw = JSON.parse(ev.target.result);
-                            const next = raw?.prefs || raw;
-                            if (!next || typeof next !== 'object') throw new Error('bad');
-                            prefs = { ...DEFAULT_PREFS, ...next };
-                            savePrefs();
-                            applyPrefs({ applyEngine: true });
-                            syncPrefsForm();
-                            showToastMessage('界面设置已导入');
+                            if (!confirm('导入将合并/覆盖备份中的对应数据，继续？')) { e.target.value = ''; return; }
+                            applyFullBackup(raw, { allowArray: true });
+                            showToastMessage('备份已导入');
                         } catch (err) {
-                            showToastMessage('设置文件无效');
+                            showToastMessage('备份文件无效');
                         }
                         e.target.value = '';
                     };
@@ -2694,6 +2996,8 @@
                     const bgColor = COLOR_PALETTE[idx % COLOR_PALETTE.length];
                     const cardDiv = document.createElement('div'); cardDiv.className = 'xe-card bookmark-item';
                     cardDiv.style.setProperty('--i', Math.min(idx, 24));
+                    cardDiv.draggable = true;
+                    cardDiv.setAttribute('data-index', String(idx));
                     const link = document.createElement('a'); link.href = bookmark.url; link.target = '_blank'; link.className = 'box2';
                     if(bookmark.special) link.classList.add('gold-border');
                     link.style.backgroundColor = bgColor; link.style.borderColor = bgColor;
@@ -2703,6 +3007,38 @@
                     const delBtn = document.createElement('button'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '✕'; delBtn.setAttribute('data-index', idx);
                     const editBtn = document.createElement('button'); editBtn.className = 'edit-bookmark-btn'; editBtn.innerHTML = '✎'; editBtn.setAttribute('data-edit-index', idx);
                     cardDiv.appendChild(delBtn); cardDiv.appendChild(editBtn);
+                    // drag reorder
+                    cardDiv.addEventListener('dragstart', (e) => {
+                        cardDiv.classList.add('dragging');
+                        e.dataTransfer.effectAllowed = 'move';
+                        e.dataTransfer.setData('text/plain', String(idx));
+                    });
+                    cardDiv.addEventListener('dragend', () => {
+                        cardDiv.classList.remove('dragging');
+                        dynamicContainer.querySelectorAll('.bookmark-item.drag-over').forEach(n => n.classList.remove('drag-over'));
+                    });
+                    cardDiv.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        e.dataTransfer.dropEffect = 'move';
+                        cardDiv.classList.add('drag-over');
+                    });
+                    cardDiv.addEventListener('dragleave', () => cardDiv.classList.remove('drag-over'));
+                    cardDiv.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        cardDiv.classList.remove('drag-over');
+                        const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                        const to = idx;
+                        if (isNaN(from) || from === to || from < 0 || from >= bookmarks.length) return;
+                        const [moved] = bookmarks.splice(from, 1);
+                        bookmarks.splice(to, 0, moved);
+                        saveBookmarks();
+                        renderBookmarks();
+                        showToastMessage('书签顺序已更新');
+                    });
+                    // avoid accidental navigation while dragging
+                    link.addEventListener('click', (e) => {
+                        if (cardDiv.classList.contains('dragging')) e.preventDefault();
+                    });
                     dynamicContainer.appendChild(cardDiv);
                 });
             }
@@ -2715,8 +3051,22 @@
                 if (toastTimer) clearTimeout(toastTimer);
                 toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
             }
-            function exportFullData() { const data = { version:'1.0', bookmarks, shortcuts }; const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `favorites_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`; a.click(); URL.revokeObjectURL(url); showToastMessage(`导出 ${bookmarks.length} 书签 + ${shortcuts.length} 快链`); }
-            function importData(file) { const reader = new FileReader(); reader.onload = (ev) => { try { const raw = JSON.parse(ev.target.result); let nb = [], ns = []; if(Array.isArray(raw)) { if(confirm('导入旧版书签？')) nb = raw.map(b=>({...b, special:!!b.special})); else return; } else if(raw && typeof raw==='object') { if(confirm('替换所有书签和快捷链接？')) { nb = Array.isArray(raw.bookmarks) ? raw.bookmarks.map(b=>({...b, special:!!b.special})) : []; ns = Array.isArray(raw.shortcuts) ? raw.shortcuts : []; } else return; } if(nb) bookmarks = nb; if(ns) shortcuts = ns; saveShortcuts(); saveBookmarks(); renderShortcutsInline(); renderBookmarks(); showToastMessage(`导入完成`); } catch(e){ showToastMessage('文件无效'); } }; reader.readAsText(file); }
+            function exportFullData() {
+                downloadJson(`nav_backup_${new Date().toISOString().slice(0,19).replace(/:/g,'-')}.json`, collectFullBackup());
+                showToastMessage(`已导出全部（书签 ${bookmarks.length} / 快链 ${shortcuts.length}）`);
+            }
+            function importData(file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    try {
+                        const raw = JSON.parse(ev.target.result);
+                        if (!confirm('导入备份？将写入文件中包含的书签/设置/引擎等数据。')) return;
+                        applyFullBackup(raw, { allowArray: true });
+                        showToastMessage('导入完成');
+                    } catch (e) { showToastMessage('文件无效'); }
+                };
+                reader.readAsText(file);
+            }
             function clearAllBookmarks() { if(confirm('清空所有书签？')) { bookmarks = []; saveBookmarks(); renderBookmarks(); showToastMessage('已清空书签'); } }
             const modal = document.getElementById('addModal'); const modalTitle = document.getElementById('modal-title'); const nameInput = document.getElementById('modal-site-name'); const urlInput = document.getElementById('modal-site-url'); const specialCheck = document.getElementById('modal-special'); let editingBookmarkIndex = null;
             function resetModalFields() { nameInput.value = ''; urlInput.value = 'https://'; specialCheck.checked = false; editingBookmarkIndex = null; }
@@ -2779,12 +3129,54 @@
 
             // 界面自定义：等时钟函数就绪后再应用
             prefs = loadPrefs();
+            loadCustomEngines();
+            loadRecentSearches();
+            renderCustomEnginesIntoSearch();
             bindPrefsControls();
             applyPrefs({ skipRender: true, applyEngine: true });
             syncPrefsForm();
+            renderCustomEngineSettingsList();
             renderShortcutsInline();
             renderBookmarks();
             startWfWorld();
+
+            // 键盘：/ 聚焦；数字键切当前分组引擎；Esc 收起建议
+            function visibleEngineInputs() {
+                const group = document.querySelector('.search-group.s-current') || document.querySelector('.search-group.group-a');
+                if (!group) return [];
+                return [...group.querySelectorAll('input[name="type"]')];
+            }
+            function selectEngineByIndex(idx) {
+                const inputs = visibleEngineInputs();
+                if (!inputs.length) return;
+                const input = inputs[((idx % inputs.length) + inputs.length) % inputs.length];
+                if (!input) return;
+                input.checked = true;
+                const group = input.closest('.search-group');
+                document.querySelectorAll('.search-group').forEach(g => g.classList.remove('s-current'));
+                if (group) group.classList.add('s-current');
+                updateCurrentEngine(input.value, input.getAttribute('data-placeholder') || '搜索...');
+                const lab = document.querySelector(`label[for="${input.id}"]`);
+                showToastMessage(`引擎：${lab ? lab.textContent.trim() : input.id}`);
+            }
+            document.addEventListener('keydown', (e) => {
+                const tag = (e.target && e.target.tagName || '').toLowerCase();
+                const typing = tag === 'input' || tag === 'textarea' || (e.target && e.target.isContentEditable);
+                if (e.key === 'Escape') {
+                    hideSuggestions();
+                    return;
+                }
+                if (!typing && e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                    searchInput.focus();
+                    searchInput.select();
+                    return;
+                }
+                if (!typing && /^[1-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                    e.preventDefault();
+                    selectEngineByIndex(parseInt(e.key, 10) - 1);
+                }
+            });
 
             // 点击表情复制
             const emojiEl = document.getElementById('emoji-copy');
