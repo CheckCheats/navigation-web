@@ -22,7 +22,7 @@
         .s-type-list label, .search-type label, #search button, 
         .shortcut-item a, .delete-shortcut-btn,
         .modal-container button, .xe-card .box2, .s-type span, 
-        .custom-shortcuts-inline a, .edit-bookmark-btn, .manage-trigger,
+        .custom-shortcuts-inline a, .edit-bookmark-btn, .edit-shortcut-btn, .manage-trigger,
         .suggestion-item, .dock-settings-btn, .theme-chip, .settings-close,
         .settings-actions button, .settings-check, .settings-check input {
             cursor: pointer !important;
@@ -547,6 +547,89 @@
             z-index: 10;
         }
         .edit-mode .shortcut-item .delete-shortcut-btn { display: flex; }
+
+        /* ===== peer merge: spacer / shortcut edit / type switcher / drag ===== */
+        .edit-mode .shortcut-item { cursor: grab; }
+        .edit-mode .shortcut-item:active { cursor: grabbing; }
+        .edit-mode .shortcut-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.94);
+        }
+        .edit-mode .shortcut-item.drag-over {
+            outline: 2px dashed var(--brass);
+            outline-offset: 2px;
+        }
+        .shortcut-item.shortcut-spacer { cursor: default; }
+        .shortcut-item.shortcut-spacer .spacer-block {
+            display: inline-block;
+            width: 22px;
+            height: 28px;
+            background: transparent;
+            border: 2px dashed transparent;
+            border-radius: var(--radius-s);
+            box-sizing: border-box;
+            pointer-events: none;
+            vertical-align: middle;
+        }
+        .edit-mode .shortcut-item.shortcut-spacer { cursor: grab; }
+        .edit-mode .shortcut-item.shortcut-spacer .spacer-block {
+            background: rgba(176, 137, 72, 0.12);
+            border-color: rgba(176, 137, 72, 0.55);
+        }
+        .shortcut-item .edit-shortcut-btn {
+            position: absolute;
+            top: -7px;
+            right: 12px;
+            background: var(--celadon);
+            color: var(--cream);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(28, 25, 21, 0.2);
+            line-height: 1;
+            font-family: inherit;
+        }
+        .edit-mode .shortcut-item .edit-shortcut-btn { display: flex; }
+        .shortcut-item .edit-shortcut-btn:hover { background: var(--ink); color: var(--cream); }
+        .popup-btn.add-spacer-btn:hover { background: var(--cream-inset); }
+        .type-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 14px 0 6px;
+        }
+        .type-switcher .type-btn {
+            padding: 6px 16px;
+            border: 1px solid var(--line-strong);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            background: var(--cream-inset);
+            color: var(--ink-soft);
+            font-family: inherit;
+            transition: background 0.12s var(--ease), color 0.12s var(--ease), border-color 0.12s var(--ease);
+        }
+        .type-switcher .type-btn.active {
+            background: var(--ink);
+            color: var(--cream);
+            border-color: var(--ink);
+        }
+        .type-switcher .type-btn:not(.active):hover {
+            background: var(--cream);
+            border-color: var(--ink-mute);
+        }
+        .action-popup.show .popup-btn:nth-child(6) { animation-delay: 145ms; }
+
 
         .bookmark-item { position: relative; }
         .bookmark-item .delete-btn,
@@ -1579,6 +1662,7 @@
                         <button class="manage-trigger" id="global-manage-trigger">收藏</button>
                         <div id="action-popup" class="action-popup">
                             <button id="add-shortcut" class="popup-btn add-shortcut-btn"><span class="emoji">🔗</span> 快链</button>
+                            <button id="add-spacer" class="popup-btn add-spacer-btn"><span class="emoji">⬜</span> 间隔</button>
                             <button id="add-new-bookmark" class="popup-btn add-bookmark-btn"><span class="emoji">📖</span> 书签</button>
                             <button id="export-bookmarks" class="popup-btn export-btn"><span class="emoji">📥</span> 导出</button>
                             <button id="import-bookmarks" class="popup-btn import-btn"><span class="emoji">📤</span> 导入</button>
@@ -1598,6 +1682,10 @@
             <div class="input-field"><label for="modal-site-name">📛 名称</label><input type="text" id="modal-site-name" placeholder="名字"></div>
             <div class="input-field"><label for="modal-site-url">🔗 网址</label><input type="text" id="modal-site-url" placeholder="https:// 或 http://"></div>
             <div class="checkbox-field"><label><input type="checkbox" id="modal-special"> ✨ 边框显示</label></div>
+            <div class="type-switcher">
+                <button type="button" class="type-btn active" data-type="bookmark">📖 书签</button>
+                <button type="button" class="type-btn" data-type="shortcut">🔗 快链</button>
+            </div>
             <div class="modal-buttons"><button class="cancel-btn" id="modal-cancel">取消</button><button class="confirm-btn" id="modal-confirm">完成添加</button></div>
         </div>
     </div>
@@ -2426,6 +2514,110 @@
             }
 
 
+
+            // ========== 搜索引擎 JSON 配置（兼容对方版本钩子） ==========
+            let searchEnginesConfig = null;
+            function applySearchEnginesConfig(cfg) {
+                if (!cfg || !Array.isArray(cfg.categories) || !cfg.categories.length) return false;
+                searchEnginesConfig = cfg;
+                const list = document.getElementById('search-list');
+                const sTypeListEl = document.querySelector('.s-type .s-type-list');
+                if (!list || !sTypeListEl) return false;
+                // rebuild category switcher labels (first engine id of each category)
+                sTypeListEl.innerHTML = '';
+                // remove old groups, keep .s-type
+                [...list.querySelectorAll('.search-group')].forEach(g => g.remove());
+                cfg.categories.forEach((cat, i) => {
+                    const engines = Array.isArray(cat.engines) ? cat.engines : [];
+                    if (!engines.length) return;
+                    const first = engines[0];
+                    const lab = document.createElement('label');
+                    lab.setAttribute('for', first.id);
+                    lab.textContent = cat.name || first.name || ('分组' + (i + 1));
+                    sTypeListEl.appendChild(lab);
+                    const group = document.createElement('div');
+                    group.className = 'search-group ' + (cat.group || ('group-' + i)) + (i === 0 ? ' s-current' : '');
+                    const typeText = document.createElement('span');
+                    typeText.className = 'type-text';
+                    typeText.textContent = cat.name || '';
+                    const ul = document.createElement('ul');
+                    ul.className = 'search-type';
+                    engines.forEach(eng => {
+                        if (!eng || !eng.id || !eng.url) return;
+                        const li = document.createElement('li');
+                        const input = document.createElement('input');
+                        input.type = 'radio';
+                        input.name = 'type';
+                        input.id = eng.id;
+                        input.value = eng.url;
+                        input.setAttribute('data-placeholder', eng.placeholder || eng.name || '搜索...');
+                        if (i === 0 && eng === engines[0]) input.checked = true;
+                        const label = document.createElement('label');
+                        label.htmlFor = eng.id;
+                        label.textContent = eng.name || eng.id;
+                        li.appendChild(input);
+                        li.appendChild(label);
+                        ul.appendChild(li);
+                    });
+                    group.appendChild(typeText);
+                    group.appendChild(ul);
+                    list.appendChild(group);
+                });
+                rebindSearchEngineUI();
+                // sync default selection
+                const checked = document.querySelector('input[name="type"]:checked');
+                if (checked) updateCurrentEngine(checked.value, checked.getAttribute('data-placeholder') || '搜索...');
+                return true;
+            }
+            function rebindSearchEngineUI() {
+                const sTypeEl = document.querySelector('.s-type');
+                const sTypeListNow = sTypeEl?.querySelector('.s-type-list');
+                const labels = sTypeListNow?.querySelectorAll('label') || [];
+                labels.forEach(label => {
+                    label.onclick = (e) => {
+                        e.stopPropagation();
+                        const targetId = label.getAttribute('for');
+                        document.querySelectorAll('.search-group').forEach(g => g.classList.remove('s-current'));
+                        const targetInput = document.getElementById(targetId);
+                        const group = targetInput?.closest('.search-group');
+                        if (group) group.classList.add('s-current');
+                        if (targetInput) {
+                            targetInput.checked = true;
+                            updateCurrentEngine(targetInput.value, targetInput.getAttribute('data-placeholder') || '搜索...');
+                        }
+                        if (sTypeListNow) sTypeListNow.style.display = 'none';
+                    };
+                });
+                document.querySelectorAll('input[name="type"]').forEach(input => {
+                    input.onchange = function() {
+                        updateCurrentEngine(this.value, this.getAttribute('data-placeholder') || '搜索...');
+                    };
+                });
+            }
+            function loadSearchEnginesConfig() {
+                return fetch('search-engines.json', { cache: 'force-cache' })
+                    .then(r => { if (!r.ok) throw new Error('engines ' + r.status); return r.json(); })
+                    .then(data => {
+                        window.searchEnginesConfig = data;
+                        applySearchEnginesConfig(data);
+                        if (typeof window.onSearchEnginesLoaded === 'function') {
+                            try { window.onSearchEnginesLoaded(data); } catch (e) {}
+                        }
+                        return data;
+                    })
+                    .catch(err => {
+                        console.warn('加载 search-engines.json 失败，使用内置引擎', err);
+                        return null;
+                    });
+            }
+            window.onSearchEnginesLoaded = function(data) {
+                applySearchEnginesConfig(data);
+                loadCustomEngines();
+                renderCustomEnginesIntoSearch();
+                if (typeof prefs !== 'undefined' && prefs) applyDefaultEngine();
+                refreshDefaultEngineOptions();
+            };
+
             // ========== 最近搜索 / 自定义引擎 / 全量备份 ==========
             const CUSTOM_ENGINES_KEY = 'nav_custom_engines_v1';
             const RECENT_SEARCHES_KEY = 'nav_recent_searches_v1';
@@ -2979,12 +3171,68 @@
                 inlineContainer.innerHTML = '';
                 if(!shortcuts.length) { inlineContainer.innerHTML = '<span class="inline-empty-hint">暂无快捷链接，点击“收藏”→“快链”添加</span>'; return; }
                 shortcuts.forEach((item, idx) => {
-                    const wrapper = document.createElement('span'); wrapper.className = 'shortcut-item';
+                    const wrapper = document.createElement('span');
+                    wrapper.className = 'shortcut-item';
                     wrapper.style.setProperty('--i', idx);
-                    const link = document.createElement('a'); link.href = item.url; link.target = '_blank'; link.textContent = item.name;
-                    const delBtn = document.createElement('button'); delBtn.className = 'delete-shortcut-btn'; delBtn.innerHTML = '✕';
-                    delBtn.addEventListener('click', (e) => { e.stopPropagation(); if(confirm(`删除快捷链接「${item.name}」？`)) { shortcuts.splice(idx,1); saveShortcuts(); renderShortcutsInline(); showToastMessage(`已删除「${item.name}」`); } });
-                    wrapper.appendChild(link); wrapper.appendChild(delBtn); inlineContainer.appendChild(wrapper);
+                    wrapper.setAttribute('draggable', 'true');
+                    wrapper.setAttribute('data-index', String(idx));
+                    if (item && item.type === 'spacer') {
+                        wrapper.classList.add('shortcut-spacer');
+                        const spacer = document.createElement('span');
+                        spacer.className = 'spacer-block';
+                        wrapper.appendChild(spacer);
+                        const delBtn = document.createElement('button');
+                        delBtn.className = 'delete-shortcut-btn';
+                        delBtn.innerHTML = '✕';
+                        delBtn.setAttribute('draggable', 'false');
+                        delBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            shortcuts.splice(idx, 1);
+                            saveShortcuts();
+                            renderShortcutsInline();
+                            showToastMessage('已删除间隔块');
+                        });
+                        wrapper.appendChild(delBtn);
+                        inlineContainer.appendChild(wrapper);
+                        return;
+                    }
+                    const link = document.createElement('a');
+                    link.href = item.url;
+                    link.target = '_blank';
+                    link.textContent = item.name;
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-shortcut-btn';
+                    editBtn.innerHTML = '✎';
+                    editBtn.setAttribute('draggable', 'false');
+                    editBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        editingShortcutIndex = idx;
+                        editingBookmarkIndex = null;
+                        currentModalType = 'shortcut';
+                        updateTypeSwitcherUI();
+                        nameInput.value = item.name || '';
+                        urlInput.value = item.url || '';
+                        specialCheck.checked = false;
+                        modalTitle.textContent = '✏️ 编辑快捷链接';
+                        modal.classList.add('active');
+                    });
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-shortcut-btn';
+                    delBtn.innerHTML = '✕';
+                    delBtn.setAttribute('draggable', 'false');
+                    delBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm(`删除快捷链接「${item.name}」？`)) {
+                            shortcuts.splice(idx, 1);
+                            saveShortcuts();
+                            renderShortcutsInline();
+                            showToastMessage(`已删除「${item.name}」`);
+                        }
+                    });
+                    wrapper.appendChild(link);
+                    wrapper.appendChild(editBtn);
+                    wrapper.appendChild(delBtn);
+                    inlineContainer.appendChild(wrapper);
                 });
             }
             const dynamicContainer = document.getElementById('dynamic-bookmarks');
@@ -2994,51 +3242,37 @@
                 if(!bookmarks.length) { dynamicContainer.innerHTML = '<div class="empty-bookmarks">暂无书签，点击「收藏」添加或导入</div>'; return; }
                 bookmarks.forEach((bookmark, idx) => {
                     const bgColor = COLOR_PALETTE[idx % COLOR_PALETTE.length];
-                    const cardDiv = document.createElement('div'); cardDiv.className = 'xe-card bookmark-item';
+                    const cardDiv = document.createElement('div');
+                    cardDiv.className = 'xe-card bookmark-item';
                     cardDiv.style.setProperty('--i', Math.min(idx, 24));
-                    cardDiv.draggable = true;
+                    cardDiv.setAttribute('draggable', 'true');
                     cardDiv.setAttribute('data-index', String(idx));
-                    const link = document.createElement('a'); link.href = bookmark.url; link.target = '_blank'; link.className = 'box2';
-                    if(bookmark.special) link.classList.add('gold-border');
-                    link.style.backgroundColor = bgColor; link.style.borderColor = bgColor;
-                    const commentDiv = document.createElement('div'); commentDiv.className = 'xe-comment-entry';
-                    const strongEl = document.createElement('strong'); strongEl.textContent = bookmark.name;
-                    commentDiv.appendChild(strongEl); link.appendChild(commentDiv); cardDiv.appendChild(link);
-                    const delBtn = document.createElement('button'); delBtn.className = 'delete-btn'; delBtn.innerHTML = '✕'; delBtn.setAttribute('data-index', idx);
-                    const editBtn = document.createElement('button'); editBtn.className = 'edit-bookmark-btn'; editBtn.innerHTML = '✎'; editBtn.setAttribute('data-edit-index', idx);
-                    cardDiv.appendChild(delBtn); cardDiv.appendChild(editBtn);
-                    // drag reorder
-                    cardDiv.addEventListener('dragstart', (e) => {
-                        cardDiv.classList.add('dragging');
-                        e.dataTransfer.effectAllowed = 'move';
-                        e.dataTransfer.setData('text/plain', String(idx));
-                    });
-                    cardDiv.addEventListener('dragend', () => {
-                        cardDiv.classList.remove('dragging');
-                        dynamicContainer.querySelectorAll('.bookmark-item.drag-over').forEach(n => n.classList.remove('drag-over'));
-                    });
-                    cardDiv.addEventListener('dragover', (e) => {
-                        e.preventDefault();
-                        e.dataTransfer.dropEffect = 'move';
-                        cardDiv.classList.add('drag-over');
-                    });
-                    cardDiv.addEventListener('dragleave', () => cardDiv.classList.remove('drag-over'));
-                    cardDiv.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        cardDiv.classList.remove('drag-over');
-                        const from = parseInt(e.dataTransfer.getData('text/plain'), 10);
-                        const to = idx;
-                        if (isNaN(from) || from === to || from < 0 || from >= bookmarks.length) return;
-                        const [moved] = bookmarks.splice(from, 1);
-                        bookmarks.splice(to, 0, moved);
-                        saveBookmarks();
-                        renderBookmarks();
-                        showToastMessage('书签顺序已更新');
-                    });
-                    // avoid accidental navigation while dragging
-                    link.addEventListener('click', (e) => {
-                        if (cardDiv.classList.contains('dragging')) e.preventDefault();
-                    });
+                    const link = document.createElement('a');
+                    link.href = bookmark.url;
+                    link.target = '_blank';
+                    link.className = 'box2';
+                    if (bookmark.special) link.classList.add('gold-border');
+                    link.style.backgroundColor = bgColor;
+                    link.style.borderColor = bgColor;
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'xe-comment-entry';
+                    const strongEl = document.createElement('strong');
+                    strongEl.textContent = bookmark.name;
+                    commentDiv.appendChild(strongEl);
+                    link.appendChild(commentDiv);
+                    cardDiv.appendChild(link);
+                    const delBtn = document.createElement('button');
+                    delBtn.className = 'delete-btn';
+                    delBtn.innerHTML = '✕';
+                    delBtn.setAttribute('data-index', idx);
+                    delBtn.setAttribute('draggable', 'false');
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'edit-bookmark-btn';
+                    editBtn.innerHTML = '✎';
+                    editBtn.setAttribute('data-edit-index', idx);
+                    editBtn.setAttribute('draggable', 'false');
+                    cardDiv.appendChild(delBtn);
+                    cardDiv.appendChild(editBtn);
                     dynamicContainer.appendChild(cardDiv);
                 });
             }
@@ -3068,22 +3302,257 @@
                 reader.readAsText(file);
             }
             function clearAllBookmarks() { if(confirm('清空所有书签？')) { bookmarks = []; saveBookmarks(); renderBookmarks(); showToastMessage('已清空书签'); } }
-            const modal = document.getElementById('addModal'); const modalTitle = document.getElementById('modal-title'); const nameInput = document.getElementById('modal-site-name'); const urlInput = document.getElementById('modal-site-url'); const specialCheck = document.getElementById('modal-special'); let editingBookmarkIndex = null;
-            function resetModalFields() { nameInput.value = ''; urlInput.value = 'https://'; specialCheck.checked = false; editingBookmarkIndex = null; }
-            function closeModal() { modal.classList.remove('active'); }
-            function openAddBookmarkModal() { resetModalFields(); modalTitle.textContent = '📖 添加书签'; modal.classList.add('active'); nameInput.focus(); }
-            function saveBookmarkFromModal() { let name = nameInput.value.trim(), url = urlInput.value.trim(); if(!name||!url) return showToastMessage('完整填写'); if(!url.startsWith('http')) url='https://'+url; if(editingBookmarkIndex!==null && editingBookmarkIndex>=0 && editingBookmarkIndex<bookmarks.length) { bookmarks[editingBookmarkIndex] = { name, url, special:specialCheck.checked }; saveBookmarks(); renderBookmarks(); showToastMessage(`更新书签「${name}」`); } else { bookmarks.push({ name, url, special:specialCheck.checked }); saveBookmarks(); renderBookmarks(); showToastMessage(`添加书签「${name}」`); } closeModal(); }
-            function addShortcutFromModal() { let name = nameInput.value.trim(), url = urlInput.value.trim(); if(!name||!url) return showToastMessage('完整填写'); if(!url.startsWith('http')) url='https://'+url; shortcuts.push({ name, url }); saveShortcuts(); renderShortcutsInline(); showToastMessage(`快捷链接「${name}」已添加`); closeModal(); }
-            document.getElementById('modal-confirm').onclick = () => { if(modalTitle.textContent.includes('快捷链接')) addShortcutFromModal(); else saveBookmarkFromModal(); };
+            const modal = document.getElementById('addModal');
+            const modalTitle = document.getElementById('modal-title');
+            const nameInput = document.getElementById('modal-site-name');
+            const urlInput = document.getElementById('modal-site-url');
+            const specialCheck = document.getElementById('modal-special');
+            let editingBookmarkIndex = null;
+            let editingShortcutIndex = null;
+            let currentModalType = 'bookmark';
+            function updateTypeSwitcherUI() {
+                document.querySelectorAll('.type-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-type') === currentModalType);
+                });
+            }
+            function resetModalFields() {
+                nameInput.value = '';
+                urlInput.value = 'https://';
+                specialCheck.checked = false;
+                editingBookmarkIndex = null;
+                editingShortcutIndex = null;
+                currentModalType = 'bookmark';
+                updateTypeSwitcherUI();
+            }
+            function closeModal() {
+                modal.classList.remove('active');
+                editingShortcutIndex = null;
+                editingBookmarkIndex = null;
+            }
+            function openAddBookmarkModal() {
+                resetModalFields();
+                currentModalType = 'bookmark';
+                updateTypeSwitcherUI();
+                modalTitle.textContent = '📖 添加书签';
+                modal.classList.add('active');
+                nameInput.focus();
+            }
+            function saveBookmarkFromModal() {
+                let name = nameInput.value.trim(), url = urlInput.value.trim();
+                if (!name || !url) return showToastMessage('完整填写');
+                if (!url.startsWith('http')) url = 'https://' + url;
+                if (editingShortcutIndex !== null && editingShortcutIndex >= 0 && editingShortcutIndex < shortcuts.length) {
+                    shortcuts.splice(editingShortcutIndex, 1);
+                    bookmarks.push({ name, url, special: specialCheck.checked });
+                    saveShortcuts(); saveBookmarks();
+                    renderShortcutsInline(); renderBookmarks();
+                    showToastMessage(`已将「${name}」从快链转为书签`);
+                } else if (editingBookmarkIndex !== null && editingBookmarkIndex >= 0 && editingBookmarkIndex < bookmarks.length) {
+                    bookmarks[editingBookmarkIndex] = { name, url, special: specialCheck.checked };
+                    saveBookmarks(); renderBookmarks();
+                    showToastMessage(`更新书签「${name}」`);
+                } else {
+                    bookmarks.push({ name, url, special: specialCheck.checked });
+                    saveBookmarks(); renderBookmarks();
+                    showToastMessage(`添加书签「${name}」`);
+                }
+                closeModal();
+            }
+            function addShortcutFromModal() {
+                let name = nameInput.value.trim(), url = urlInput.value.trim();
+                if (!name || !url) return showToastMessage('完整填写');
+                if (!url.startsWith('http')) url = 'https://' + url;
+                shortcuts.push({ name, url });
+                saveShortcuts(); renderShortcutsInline();
+                showToastMessage(`快捷链接「${name}」已添加`);
+                closeModal();
+            }
+            document.getElementById('modal-confirm').onclick = () => {
+                if (currentModalType === 'shortcut') {
+                    let name = nameInput.value.trim(), url = urlInput.value.trim();
+                    if (!name || !url) return showToastMessage('完整填写');
+                    if (!url.startsWith('http')) url = 'https://' + url;
+                    if (editingShortcutIndex !== null && editingShortcutIndex >= 0 && editingShortcutIndex < shortcuts.length) {
+                        shortcuts[editingShortcutIndex] = { name, url };
+                        saveShortcuts(); renderShortcutsInline();
+                        showToastMessage(`已更新快捷链接「${name}」`);
+                        closeModal();
+                    } else if (editingBookmarkIndex !== null && editingBookmarkIndex >= 0 && editingBookmarkIndex < bookmarks.length) {
+                        bookmarks.splice(editingBookmarkIndex, 1);
+                        saveBookmarks(); renderBookmarks();
+                        shortcuts.push({ name, url });
+                        saveShortcuts(); renderShortcutsInline();
+                        showToastMessage(`已将「${name}」从书签转为快链`);
+                        closeModal();
+                    } else {
+                        addShortcutFromModal();
+                    }
+                } else {
+                    saveBookmarkFromModal();
+                }
+            };
             document.getElementById('modal-cancel').onclick = closeModal;
-            modal.addEventListener('click', (e) => { if(e.target === modal) closeModal(); });
-            dynamicContainer.addEventListener('click', (e) => { const editBtn = e.target.closest('.edit-bookmark-btn'); if(editBtn) { const idx = editBtn.getAttribute('data-edit-index'); if(idx!==null){ const bm = bookmarks[parseInt(idx,10)]; if(bm){ editingBookmarkIndex = parseInt(idx,10); nameInput.value=bm.name; urlInput.value=bm.url; specialCheck.checked=bm.special; modalTitle.textContent='✏️ 编辑书签'; modal.classList.add('active'); } } return; } const delBtn = e.target.closest('.delete-btn'); if(delBtn){ const idx = parseInt(delBtn.getAttribute('data-index'),10); if(!isNaN(idx) && idx>=0 && idx<bookmarks.length){ const removed = bookmarks.splice(idx,1)[0]; saveBookmarks(); renderBookmarks(); showToastMessage(`已删除「${removed.name}」`); } } });
-            const manageTrigger = document.getElementById('global-manage-trigger'); const popupMenu = document.getElementById('action-popup');
-            function exitEditModeAndCloseMenu() { popupMenu.classList.remove('show'); document.body.classList.remove('edit-mode'); if(manageTrigger) manageTrigger.innerHTML = '收藏'; }
-            manageTrigger.addEventListener('click', (e) => { e.stopPropagation(); if(popupMenu.classList.contains('show')) exitEditModeAndCloseMenu(); else { popupMenu.classList.add('show'); document.body.classList.add('edit-mode'); manageTrigger.innerHTML = '管理'; } });
-            document.addEventListener('click', (e) => { if(popupMenu.classList.contains('show') && !document.getElementById('manage-menu-anchor').contains(e.target)) exitEditModeAndCloseMenu(); });
-            document.getElementById('add-shortcut')?.addEventListener('click', (e) => { e.stopPropagation(); resetModalFields(); modalTitle.textContent = '🔗 添加快捷链接'; modal.classList.add('active'); exitEditModeAndCloseMenu(); });
-            document.getElementById('add-new-bookmark')?.addEventListener('click', (e) => { e.stopPropagation(); openAddBookmarkModal(); exitEditModeAndCloseMenu(); });
+            modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+            document.querySelectorAll('.type-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentModalType = btn.getAttribute('data-type');
+                    updateTypeSwitcherUI();
+                    if (currentModalType === 'bookmark') {
+                        modalTitle.textContent = editingBookmarkIndex !== null ? '✏️ 编辑书签' : '📖 添加书签';
+                    } else {
+                        modalTitle.textContent = editingShortcutIndex !== null ? '✏️ 编辑快捷链接' : '🔗 添加快捷链接';
+                    }
+                });
+            });
+            dynamicContainer.addEventListener('click', (e) => {
+                const editBtn = e.target.closest('.edit-bookmark-btn');
+                if (editBtn) {
+                    const idx = editBtn.getAttribute('data-edit-index');
+                    if (idx !== null) {
+                        const bm = bookmarks[parseInt(idx, 10)];
+                        if (bm) {
+                            editingBookmarkIndex = parseInt(idx, 10);
+                            editingShortcutIndex = null;
+                            currentModalType = 'bookmark';
+                            updateTypeSwitcherUI();
+                            nameInput.value = bm.name;
+                            urlInput.value = bm.url;
+                            specialCheck.checked = bm.special;
+                            modalTitle.textContent = '✏️ 编辑书签';
+                            modal.classList.add('active');
+                        }
+                    }
+                    return;
+                }
+                const delBtn = e.target.closest('.delete-btn');
+                if (delBtn) {
+                    const idx = parseInt(delBtn.getAttribute('data-index'), 10);
+                    if (!isNaN(idx) && idx >= 0 && idx < bookmarks.length) {
+                        const removed = bookmarks.splice(idx, 1)[0];
+                        saveBookmarks(); renderBookmarks();
+                        showToastMessage(`已删除「${removed.name}」`);
+                    }
+                }
+            });
+            // 书签拖拽（仅编辑模式）
+            dynamicContainer.addEventListener('dragstart', (e) => {
+                if (!document.body.classList.contains('edit-mode')) { e.preventDefault(); return; }
+                const item = e.target.closest('.bookmark-item');
+                if (!item || e.target.closest('.delete-btn, .edit-bookmark-btn')) return;
+                item.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', item.getAttribute('data-index'));
+            });
+            dynamicContainer.addEventListener('dragover', (e) => {
+                if (!document.body.classList.contains('edit-mode')) return;
+                e.preventDefault();
+                const item = e.target.closest('.bookmark-item');
+                if (item) item.classList.add('drag-over');
+            });
+            dynamicContainer.addEventListener('dragleave', (e) => {
+                const item = e.target.closest('.bookmark-item');
+                if (item) item.classList.remove('drag-over');
+            });
+            dynamicContainer.addEventListener('drop', (e) => {
+                if (!document.body.classList.contains('edit-mode')) return;
+                e.preventDefault();
+                const srcIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                const targetItem = e.target.closest('.bookmark-item');
+                dynamicContainer.querySelectorAll('.bookmark-item').forEach(el => el.classList.remove('drag-over', 'dragging'));
+                if (isNaN(srcIndex)) return;
+                let targetIndex = targetItem ? parseInt(targetItem.getAttribute('data-index'), 10) : bookmarks.length - 1;
+                if (isNaN(targetIndex) || srcIndex === targetIndex) return;
+                const [moved] = bookmarks.splice(srcIndex, 1);
+                let adj = targetIndex;
+                if (srcIndex < targetIndex) adj--;
+                bookmarks.splice(adj, 0, moved);
+                saveBookmarks(); renderBookmarks();
+                showToastMessage('书签顺序已更新');
+            });
+            dynamicContainer.addEventListener('dragend', () => {
+                dynamicContainer.querySelectorAll('.bookmark-item').forEach(el => el.classList.remove('drag-over', 'dragging'));
+            });
+            // 快链拖拽（仅编辑模式）
+            if (inlineContainer) {
+                inlineContainer.addEventListener('dragstart', (e) => {
+                    if (!document.body.classList.contains('edit-mode')) { e.preventDefault(); return; }
+                    const item = e.target.closest('.shortcut-item');
+                    if (!item || e.target.closest('.delete-shortcut-btn, .edit-shortcut-btn')) return;
+                    item.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', item.getAttribute('data-index'));
+                });
+                inlineContainer.addEventListener('dragover', (e) => {
+                    if (!document.body.classList.contains('edit-mode')) return;
+                    e.preventDefault();
+                    const item = e.target.closest('.shortcut-item');
+                    if (item) item.classList.add('drag-over');
+                });
+                inlineContainer.addEventListener('dragleave', (e) => {
+                    const item = e.target.closest('.shortcut-item');
+                    if (item) item.classList.remove('drag-over');
+                });
+                inlineContainer.addEventListener('drop', (e) => {
+                    if (!document.body.classList.contains('edit-mode')) return;
+                    e.preventDefault();
+                    const srcIndex = parseInt(e.dataTransfer.getData('text/plain'), 10);
+                    const targetItem = e.target.closest('.shortcut-item');
+                    inlineContainer.querySelectorAll('.shortcut-item').forEach(el => el.classList.remove('drag-over', 'dragging'));
+                    if (isNaN(srcIndex)) return;
+                    let targetIndex = targetItem ? parseInt(targetItem.getAttribute('data-index'), 10) : shortcuts.length - 1;
+                    if (isNaN(targetIndex) || srcIndex === targetIndex) return;
+                    const [moved] = shortcuts.splice(srcIndex, 1);
+                    let adj = targetIndex;
+                    if (srcIndex < targetIndex) adj--;
+                    shortcuts.splice(adj, 0, moved);
+                    saveShortcuts(); renderShortcutsInline();
+                    showToastMessage('快链顺序已更新');
+                });
+                inlineContainer.addEventListener('dragend', () => {
+                    inlineContainer.querySelectorAll('.shortcut-item').forEach(el => el.classList.remove('drag-over', 'dragging'));
+                });
+            }
+            const manageTrigger = document.getElementById('global-manage-trigger');
+            const popupMenu = document.getElementById('action-popup');
+            function exitEditModeAndCloseMenu() {
+                popupMenu.classList.remove('show');
+                document.body.classList.remove('edit-mode');
+                if (manageTrigger) manageTrigger.innerHTML = '收藏';
+            }
+            manageTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (popupMenu.classList.contains('show')) exitEditModeAndCloseMenu();
+                else {
+                    popupMenu.classList.add('show');
+                    document.body.classList.add('edit-mode');
+                    manageTrigger.innerHTML = '管理';
+                }
+            });
+            document.addEventListener('click', (e) => {
+                if (popupMenu.classList.contains('show') && !document.getElementById('manage-menu-anchor').contains(e.target)) exitEditModeAndCloseMenu();
+            });
+            document.getElementById('add-shortcut')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                resetModalFields();
+                currentModalType = 'shortcut';
+                updateTypeSwitcherUI();
+                modalTitle.textContent = '🔗 添加快捷链接';
+                modal.classList.add('active');
+                exitEditModeAndCloseMenu();
+            });
+            document.getElementById('add-spacer')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                shortcuts.push({ type: 'spacer' });
+                saveShortcuts();
+                renderShortcutsInline();
+                showToastMessage('已添加空白间隔块');
+                exitEditModeAndCloseMenu();
+            });
+            document.getElementById('add-new-bookmark')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openAddBookmarkModal();
+                exitEditModeAndCloseMenu();
+            });
             document.getElementById('export-bookmarks')?.addEventListener('click', (e) => { e.stopPropagation(); exportFullData(); exitEditModeAndCloseMenu(); });
             document.getElementById('import-bookmarks')?.addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('file-import').click(); exitEditModeAndCloseMenu(); });
             document.getElementById('clear-all-bookmarks')?.addEventListener('click', (e) => { e.stopPropagation(); clearAllBookmarks(); exitEditModeAndCloseMenu(); });
@@ -3131,14 +3600,19 @@
             prefs = loadPrefs();
             loadCustomEngines();
             loadRecentSearches();
-            renderCustomEnginesIntoSearch();
             bindPrefsControls();
-            applyPrefs({ skipRender: true, applyEngine: true });
+            applyPrefs({ skipRender: true, applyEngine: false });
             syncPrefsForm();
             renderCustomEngineSettingsList();
             renderShortcutsInline();
             renderBookmarks();
             startWfWorld();
+            loadSearchEnginesConfig().finally(() => {
+                loadCustomEngines();
+                renderCustomEnginesIntoSearch();
+                applyDefaultEngine();
+                refreshDefaultEngineOptions();
+            });
 
             // 键盘：/ 聚焦；数字键切当前分组引擎；Esc 收起建议
             function visibleEngineInputs() {
