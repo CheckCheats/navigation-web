@@ -80,7 +80,9 @@
             font-family: 'Noto Sans SC', 'Segoe UI', system-ui, sans-serif;
             color: var(--ink);
             background:
-                radial-gradient(1200px 500px at 50% -80px, color-mix(in srgb, var(--brass) 18%, transparent), transparent 55%),
+                radial-gradient(900px 520px at 12% -40px, color-mix(in srgb, var(--brass) 16%, transparent), transparent 58%),
+                radial-gradient(900px 560px at 88% 4%, color-mix(in srgb, var(--celadon) 10%, transparent), transparent 60%),
+                radial-gradient(1100px 680px at 50% 112%, color-mix(in srgb, var(--cinnabar) 7%, transparent), transparent 62%),
                 linear-gradient(180deg, color-mix(in srgb, var(--cream) 70%, var(--paper)) 0%, var(--paper) 42%, var(--paper-deep) 100%);
             padding: 28px 24px 72px;
             min-height: 100vh;
@@ -105,11 +107,21 @@
         
         /* 搜索框容器 —— 需高于书签区，避免建议层被压住 */
         #search {
-            max-width: var(--search-max);
-            margin: 56px auto 0;
+            max-width: calc(var(--search-max) + 28px);
+            margin: 52px auto 0;
+            padding: 13px;
             position: relative;
             z-index: 40;
             isolation: isolate;
+            background: color-mix(in srgb, var(--cream) 72%, transparent);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow:
+                0 1px 0 rgba(255, 255, 255, 0.5) inset,
+                0 1px 2px rgba(28, 25, 21, 0.04),
+                0 26px 60px -34px rgba(28, 25, 21, 0.4);
+            -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(12px);
             animation: pageIn 420ms var(--ease) both;
         }
 
@@ -121,6 +133,19 @@
             min-height: 38px;
             margin-bottom: 10px;
             padding-left: 2px;
+        }
+        #search-list::after {
+            content: 'SEARCH';
+            margin-left: auto;
+            padding: 0 4px 9px 0;
+            font-family: 'Newsreader', 'Noto Sans SC', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.24em;
+            color: var(--ink-mute);
+            opacity: 0.5;
+            pointer-events: none;
+            white-space: nowrap;
         }
 
         .suggestions-container {
@@ -248,15 +273,26 @@
         .type-text {
             display: inline-flex;
             align-items: center;
+            gap: 6px;
             height: 32px;
-            padding: 0 11px;
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.08em;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
             color: var(--cream);
-            background: var(--celadon);
+            background: color-mix(in srgb, var(--celadon) 92%, var(--ink));
             border-radius: 999px;
             line-height: 1;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(28, 25, 21, 0.12);
+        }
+        .type-text::before {
+            content: '';
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.72;
             flex-shrink: 0;
         }
 
@@ -285,30 +321,41 @@
             line-height: 1;
         }
         .search-type input:checked + label {
-            background: var(--cream);
-            color: var(--ink);
-            box-shadow: 0 0 0 1px var(--line-strong);
+            background: var(--ink);
+            color: var(--cream);
+            box-shadow: 0 2px 6px rgba(28, 25, 21, 0.16);
         }
         .search-type label:hover {
             color: var(--ink);
-            background: rgba(246, 241, 232, 0.55);
+            background: color-mix(in srgb, var(--cream) 72%, transparent);
         }
+        .search-type input:checked + label:hover {
+            background: var(--ink);
+            color: var(--cream);
+            filter: brightness(1.08);
+        }
+        .search-type label:active { transform: scale(0.97); }
 
         #search form {
             position: relative;
             display: flex;
             align-items: stretch;
             margin-top: 0;
-            background: var(--cream);
+            background: color-mix(in srgb, var(--cream) 88%, var(--paper));
+            border: 1px solid var(--line);
             border-radius: 16px;
-            box-shadow: var(--shadow-lift);
+            box-shadow: inset 0 1px 2px rgba(28, 25, 21, 0.04);
             overflow: hidden;
             padding: 4px 4px 4px 0;
-            transition: box-shadow 0.22s var(--ease), transform 0.22s var(--ease);
+            transition: box-shadow 0.22s var(--ease), background 0.22s var(--ease), border-color 0.22s var(--ease);
         }
         #search form:focus-within {
-            box-shadow: var(--shadow-lift), 0 0 0 3px rgba(156, 61, 50, 0.16);
-            transform: translateY(-1px);
+            background: var(--cream);
+            border-color: color-mix(in srgb, var(--cinnabar) 36%, var(--line-strong));
+            box-shadow:
+                0 0 0 4px color-mix(in srgb, var(--cinnabar) 10%, transparent),
+                0 12px 26px -18px rgba(28, 25, 21, 0.35);
+            transform: none;
         }
 
         #search-text {
@@ -340,20 +387,26 @@
         #search button:hover { background: var(--cinnabar-deep); }
         #search button:active { transform: scale(0.98); }
 
+        #search .suggestions-container {
+            top: calc(100% + 8px);
+            left: 13px;
+            width: calc(100% - 26px);
+        }
+
         .sites-list {
             position: relative;
             z-index: 1;
-            margin-top: 64px;
+            margin-top: 52px;
             animation: pageIn 480ms var(--ease) 70ms both;
         }
 
         .row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
             gap: 10px;
             width: 100%;
         }
-        .xe-card { width: 100%; }
+        .xe-card { width: 100%; min-width: 0; }
         .bookmark-item {
             animation: cardIn 320ms var(--ease) both;
             animation-delay: calc(var(--i, 0) * 38ms);
@@ -363,54 +416,116 @@
             display: flex;
             align-items: center;
             justify-content: flex-start;
+            gap: 10px;
             background: var(--celadon);
-            padding: 0 14px;
-            border-radius: 12px;
+            background-image: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0) 52%);
+            padding: 0 12px;
+            border-radius: 13px;
             text-decoration: none;
             color: var(--cream);
-            border: 1px solid transparent;
+            border: 1px solid color-mix(in srgb, var(--cream) 14%, transparent);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
             transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease), filter 0.18s var(--ease);
             text-align: left;
-            height: 48px;
+            height: 58px;
             width: 100%;
             overflow: hidden;
             position: relative;
         }
         .box2:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(28, 25, 21, 0.14);
+            transform: translateY(-3px);
+            box-shadow:
+                inset 0 1px 0 rgba(255, 255, 255, 0.16),
+                0 14px 28px -10px rgba(28, 25, 21, 0.36),
+                0 2px 6px rgba(28, 25, 21, 0.08);
+            filter: saturate(1.05) brightness(1.02);
         }
-        .box2:active { transform: scale(0.98); }
+        .box2:active { transform: translateY(-1px) scale(0.985); }
+        .box2:focus-visible {
+            outline: 2px solid var(--brass);
+            outline-offset: 3px;
+        }
+
+        .bookmark-icon {
+            position: relative;
+            flex: 0 0 30px;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: color-mix(in srgb, var(--cream) 92%, #fff);
+            box-shadow:
+                0 1px 2px rgba(28, 25, 21, 0.16),
+                inset 0 0 0 1px rgba(28, 25, 21, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .bookmark-mono {
+            font-size: 13px;
+            font-weight: 750;
+            line-height: 1;
+            color: var(--celadon);
+            text-transform: uppercase;
+            transition: opacity 0.18s var(--ease);
+        }
+        .bookmark-favicon {
+            position: absolute;
+            inset: 5px;
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.18s var(--ease);
+        }
+        .bookmark-favicon.loaded { opacity: 1; }
 
         .bookmark-item a.gold-border {
-            box-shadow: inset 0 0 0 1.5px var(--brass);
+            border-color: color-mix(in srgb, var(--brass) 64%, transparent);
+            box-shadow: inset 0 0 0 1.5px var(--brass), inset 0 1px 0 rgba(255, 255, 255, 0.16);
         }
         .bookmark-item a.gold-border:hover {
-            box-shadow: inset 0 0 0 1.5px #c9a35a, 0 10px 20px rgba(28, 25, 21, 0.14);
+            box-shadow:
+                inset 0 0 0 1.5px #c9a35a,
+                inset 0 1px 0 rgba(255, 255, 255, 0.18),
+                0 14px 28px -10px rgba(28, 25, 21, 0.36);
         }
 
         @media (min-width: 1600px) {
             .row { grid-template-columns: repeat(8, 1fr); }
         }
         @media (max-width: 1200px) {
-            .row { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); }
+            .row { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
         }
         @media (max-width: 992px) {
-            .row { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+            .row { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 8px; }
         }
         @media (max-width: 768px) {
-            body { padding: 18px 14px 80px; }
-            #search { margin-top: 28px; }
+            body { padding: 18px 14px 40px; }
+            #search { margin-top: 28px; padding: 10px; border-radius: 20px; }
+            #search-list::after { display: none; }
+            #search form { border-radius: 13px; }
+            #search .suggestions-container { left: 10px; width: calc(100% - 20px); }
+            #search-text { padding: 14px 14px; font-size: 15px; }
             .sites-list { margin-top: 40px !important; }
-            .row { grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
-            .box2 { height: 44px; padding: 0 10px; }
+            .row { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+            .box2 { height: 50px; padding: 0 10px; gap: 8px; }
+            .search-group.s-current { min-width: 0; }
+            .search-type { flex: 1 1 0; min-width: 0; }
+            #search-text { min-width: 0; }
+            .bookmark-icon { flex-basis: 26px; width: 26px; height: 26px; border-radius: 8px; }
+            .bookmark-favicon { inset: 4px; width: 18px; height: 18px; }
+            .bookmark-domain { display: none; }
+            .xe-comment-entry strong { font-size: 12px; }
             .suggestions-container { max-height: 280px; }
             .suggestion-item { padding: 10px 14px; font-size: 14px; }
             .live-clock { font-size: 20px !important; padding: 6px 12px !important; }
         }
         @media (max-width: 480px) {
-            .row { grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
-            .box2 { height: 42px; }
+            .row { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+            .box2 { height: 46px; }
+            .bookmark-icon { flex-basis: 24px; width: 24px; height: 24px; }
+            .bookmark-favicon { inset: 3px; width: 18px; height: 18px; }
             #search button { min-width: 72px; padding: 0 14px; letter-spacing: 0.06em; }
         }
 
@@ -428,24 +543,35 @@
 
         .manage-trigger {
             background: var(--cream);
-            border: 1px solid var(--line-strong);
+            border: 1px solid var(--line);
             font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.14em;
+            font-weight: 700;
+            letter-spacing: 0.1em;
             color: var(--ink);
-            padding: 0 14px;
+            padding: 0 16px;
             height: 36px;
             border-radius: 999px;
             line-height: 1;
-            transition: background 0.16s var(--ease), color 0.16s var(--ease), border-color 0.16s var(--ease);
+            transition: background 0.16s var(--ease), color 0.16s var(--ease), border-color 0.16s var(--ease), box-shadow 0.16s var(--ease);
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            box-shadow: 0 1px 2px rgba(28, 25, 21, 0.03);
+        }
+        .manage-trigger::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cinnabar);
+            box-shadow: 0 0 0 3px rgba(156, 61, 50, 0.12);
+            flex-shrink: 0;
         }
         .manage-trigger:hover {
             background: var(--ink);
             color: var(--cream);
             border-color: var(--ink);
+            box-shadow: 0 4px 12px rgba(28, 25, 21, 0.16);
             transform: none;
         }
         body.edit-mode .manage-trigger {
@@ -453,11 +579,29 @@
             border-color: var(--cinnabar);
             color: #fbf6f0;
         }
+        body.edit-mode .manage-trigger::before {
+            background: var(--cream);
+            box-shadow: 0 0 0 3px rgba(246, 241, 232, 0.16);
+        }
 
+        .xe-comment-entry {
+            position: relative;
+            left: auto;
+            right: auto;
+            top: auto;
+            transform: none;
+            overflow: hidden;
+            text-align: left;
+            width: 100%;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
         .xe-comment-entry strong {
             font-size: 13px;
             font-weight: 600;
-            line-height: 1.3;
+            line-height: 1.25;
             display: block;
             color: #f4efe6;
             white-space: nowrap;
@@ -468,15 +612,15 @@
             float: none;
             text-align: left;
         }
-        .xe-comment-entry {
-            position: relative;
-            left: auto;
-            right: auto;
-            top: auto;
-            transform: none;
+        .bookmark-domain {
+            font-size: 9.5px;
+            font-weight: 500;
+            line-height: 1.25;
+            color: rgba(246, 241, 232, 0.62);
+            white-space: nowrap;
             overflow: hidden;
-            text-align: left;
-            width: 100%;
+            text-overflow: ellipsis;
+            letter-spacing: 0.02em;
         }
         .xe-comment-entry::after { display: none; }
 
@@ -631,7 +775,7 @@
         .action-popup.show .popup-btn:nth-child(6) { animation-delay: 145ms; }
 
 
-        .bookmark-item { position: relative; }
+        .bookmark-item { position: relative; min-width: 0; }
         .bookmark-item .delete-btn,
         .bookmark-item .edit-bookmark-btn {
             position: absolute;
@@ -763,7 +907,9 @@
             width: 100%;
             flex-wrap: wrap;
             gap: 12px;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--line);
             position: relative;
             z-index: 40;
         }
@@ -1205,10 +1351,10 @@
         }
         body.density-compact #search { margin-top: 36px; }
         body.density-compact .sites-list { margin-top: 40px; }
-        body.density-compact .box2 { height: 42px; }
+        body.density-compact .box2 { height: 50px; }
         body.density-airy #search { margin-top: 72px; }
         body.density-airy .sites-list { margin-top: 80px; }
-        body.density-airy .box2 { height: 52px; }
+        body.density-airy .box2 { height: 64px; }
         body.no-motion *,
         body.no-motion *::before,
         body.no-motion *::after {
@@ -1264,8 +1410,8 @@
             align-items: center;
             justify-content: space-between;
             gap: 8px;
-            margin-bottom: 8px;
-            padding: 0 2px 6px;
+            margin-bottom: 6px;
+            padding: 0 2px 4px;
             border-bottom: 1px solid var(--line);
         }
         .wf-world-head .title {
@@ -1302,14 +1448,14 @@
         .wf-world-list {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
         }
         .wf-row {
             display: grid;
             grid-template-columns: 28px 1fr auto;
             align-items: center;
             gap: 8px;
-            padding: 7px 8px;
+            padding: 5px 8px;
             border-radius: 10px;
             background: transparent;
             transition: background 0.14s var(--ease);
@@ -1362,8 +1508,8 @@
             white-space: nowrap;
         }
         .wf-world-foot {
-            margin-top: 6px;
-            padding: 4px 4px 0;
+            margin-top: 4px;
+            padding: 3px 4px 0;
             font-size: 10px;
             color: var(--ink-mute);
             letter-spacing: 0.04em;
@@ -1375,11 +1521,637 @@
         .wf-world-foot .src-local { color: var(--brass); }
         .wf-world-foot .src-err { color: var(--cinnabar); }
 
+        /* ---- 世界状态坞：紧凑双列 / 轮换 / 弹层 ---- */
+        .wf-world-dock {
+            width: min(360px, calc(100vw - 24px));
+            padding: 10px;
+        }
+        .wf-world-actions { display: flex; align-items: center; gap: 3px; }
+        .wf-world-btn {
+            width: 24px;
+            height: 24px;
+            border-radius: 7px;
+            font-size: 14px;
+            line-height: 1;
+        }
+        .wf-world-mini {
+            display: none;
+            margin-left: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 0;
+            color: var(--ink-mute);
+            white-space: nowrap;
+        }
+        .wf-world-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        .wf-row {
+            grid-template-columns: 18px minmax(0, 1fr) auto;
+            gap: 5px;
+            padding: 5px 6px;
+            border-radius: 7px;
+            background: color-mix(in srgb, var(--cream) 55%, transparent);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--line-strong);
+            transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+        }
+        .wf-row:hover {
+            background: var(--cream);
+            border-color: var(--line-strong);
+        }
+        .wf-row.state-day { border-left-color: #d8a12a; }
+        .wf-row.state-night { border-left-color: #3a4f7a; }
+        .wf-row.state-warm { border-left-color: #c0392b; }
+        .wf-row.state-cold { border-left-color: #2980b9; }
+        .wf-row.state-fass { border-left-color: #b85a28; }
+        .wf-row.state-vome { border-left-color: #6b4a9a; }
+        .wf-row.state-mood { border-left-color: #9c3d32; }
+        .wf-row.state-corpus { border-left-color: #2980b9; }
+        .wf-row.state-grineer { border-left-color: #b85a28; }
+        .wf-row.state-bounty { border-left-color: #2c7da0; }
+        .wf-row.state-week { border-left-color: #6b6b6b; }
+        .wf-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 5px;
+        }
+        .wf-icon svg { width: 12px; height: 12px; }
+        .wf-name {
+            font-size: 9px;
+            font-weight: 500;
+            letter-spacing: 0;
+            line-height: 1.15;
+        }
+        .wf-state {
+            font-size: 11px;
+            font-weight: 650;
+            line-height: 1.2;
+        }
+        .wf-time {
+            font-family: 'Consolas', 'Cascadia Mono', monospace;
+            font-size: 9.5px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-align: right;
+        }
+        .wf-time.urgent { color: #d13438; }
+        .wf-subhead {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 7px 1px 4px;
+            padding-top: 6px;
+            border-top: 1px solid var(--line);
+            font-size: 9px;
+            letter-spacing: 0.06em;
+            color: var(--ink-mute);
+        }
+        .wf-rot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+        }
+        .wf-rot-item {
+            position: relative;
+            min-width: 0;
+            padding: 5px 6px;
+            border-radius: 7px;
+            background: color-mix(in srgb, var(--cream) 55%, transparent);
+            border: 1px solid var(--line);
+            border-left: 3px solid var(--line-strong);
+            cursor: pointer !important;
+            transition: background 0.14s var(--ease), border-color 0.14s var(--ease);
+        }
+        .wf-rot-item:hover,
+        .wf-rot-item.active {
+            background: var(--cream);
+            border-color: var(--line-strong);
+        }
+        .wf-rot-item[data-pop="steel"] { border-left-color: #8a8a8a; }
+        .wf-rot-item[data-pop="bird3"] { border-left-color: #b08948; }
+        .wf-rot-item[data-pop="circuit"] { border-left-color: #4e75ff; }
+        .wf-rot-item[data-pop="arb"] { border-left-color: #9c6ad1; }
+        .wf-rot-label {
+            font-size: 9px;
+            color: var(--ink-mute);
+            line-height: 1.15;
+        }
+        .wf-rot-value {
+            margin-top: 1px;
+            font-size: 11px;
+            font-weight: 650;
+            color: var(--ink);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wf-rot-time {
+            margin-top: 1px;
+            font-family: 'Consolas', 'Cascadia Mono', monospace;
+            font-size: 9px;
+            color: var(--celadon);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wf-pop {
+            position: absolute;
+            left: 0;
+            bottom: calc(100% + 6px);
+            z-index: 30;
+            width: min(360px, calc(100vw - 24px));
+            max-height: 290px;
+            overflow: auto;
+            background: var(--cream);
+            border: 1px solid var(--line-strong);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lift), 0 16px 34px rgba(28, 25, 21, 0.18);
+        }
+        .wf-pop[hidden] { display: none !important; }
+        .wf-pop-head {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 6px 9px;
+            background: var(--cream-inset);
+            border-bottom: 1px solid var(--line);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+        .wf-pop-close {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 6px;
+            background: transparent;
+            color: var(--ink-mute);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer !important;
+        }
+        .wf-pop-close:hover { background: var(--cream); color: var(--ink); }
+        .wf-pop-body { padding: 6px 8px 8px; }
+        .wf-pop-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 5px;
+            border-radius: 6px;
+            font-size: 10px;
+            color: var(--ink-soft);
+            line-height: 1.35;
+        }
+        .wf-pop-row + .wf-pop-row { border-top: 1px solid var(--line); border-radius: 0; }
+        .wf-pop-row.current { background: color-mix(in srgb, var(--cinnabar) 8%, transparent); color: var(--ink); }
+        .wf-pop-row .tag {
+            flex-shrink: 0;
+            min-width: 22px;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: 700;
+            text-align: center;
+            background: var(--cream-inset);
+            color: var(--ink-mute);
+        }
+        .wf-pop-row .tag.s { background: rgba(156, 61, 50, 0.14); color: var(--cinnabar); }
+        .wf-pop-row .tag.a { background: rgba(176, 137, 72, 0.16); color: #8a6420; }
+        .wf-pop-row .tag.bonus { background: rgba(78, 117, 255, 0.12); color: #3b5bcc; }
+        .wf-pop-row .time {
+            flex-shrink: 0;
+            font-family: 'Consolas', 'Cascadia Mono', monospace;
+            font-size: 9.5px;
+            color: var(--ink-mute);
+        }
+        .wf-pop-row .main { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .wf-pop-empty { padding: 10px 6px; text-align: center; font-size: 10px; color: var(--ink-mute); }
+        .wf-world-dock.collapsed {
+            width: 250px;
+            padding-bottom: 10px;
+        }
+        .wf-world-dock.collapsed .wf-world-list,
+        .wf-world-dock.collapsed .wf-subhead,
+        .wf-world-dock.collapsed .wf-rot-grid,
+        .wf-world-dock.collapsed .wf-world-foot,
+        .wf-world-dock.collapsed .wf-pop {
+            display: none;
+        }
+        .wf-world-dock.collapsed .wf-world-head {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .wf-world-dock.collapsed .wf-world-mini { display: inline; }
+        body.wf-world-collapsed .wf-market-dock { left: 274px; }
+        @media (max-width: 1000px) {
+            .wf-world-dock { width: min(360px, calc(100vw - 16px)); }
+            .wf-world-dock.collapsed { width: min(250px, calc(100vw - 16px)); }
+            body.wf-world-collapsed .wf-market-dock { left: 8px; }
+        }
+        @media (max-width: 768px) {
+            .wf-world-dock,
+            .wf-world-dock.collapsed { width: 100%; }
+        }
+
+        /* ===== 左下角 Warframe 市场行情 ===== */
+        .wf-market-dock {
+            position: fixed;
+            left: 384px;
+            bottom: 12px;
+            z-index: 10041;
+            width: min(382px, calc(100vw - 408px));
+            max-height: min(520px, calc(100vh - 24px));
+            display: flex;
+            flex-direction: column;
+            background: color-mix(in srgb, var(--cream) 92%, transparent);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--line-strong);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lift);
+            padding: 10px;
+            color: var(--ink);
+            animation: pageIn 480ms var(--ease) 140ms both;
+            transform-origin: bottom left;
+        }
+        .wf-market-dock [hidden] { display: none !important; }
+        body.hide-wf-market .wf-market-dock { display: none; }
+        body.hide-wf-world .wf-market-dock { left: 12px; }
+        .wf-market-dock.collapsed {
+            width: 220px;
+            max-height: none;
+        }
+        .wf-market-dock.collapsed .wfm-body { display: none; }
+        .wf-market-dock.collapsed .wfm-head {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        .wfm-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 0 2px 6px;
+            border-bottom: 1px solid var(--line);
+        }
+        .wfm-title {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--ink);
+            white-space: nowrap;
+        }
+        .wfm-title svg { width: 15px; height: 15px; color: var(--brass); flex-shrink: 0; }
+        .wfm-head-actions { display: flex; align-items: center; gap: 4px; }
+        .wfm-icon-btn {
+            width: 26px;
+            height: 26px;
+            border: none;
+            border-radius: 999px;
+            background: var(--cream-inset);
+            color: var(--ink-soft);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer !important;
+            text-decoration: none;
+            font-size: 14px;
+            line-height: 1;
+            transition: background 0.14s var(--ease), color 0.14s var(--ease), transform 0.14s var(--ease);
+        }
+        .wfm-icon-btn:hover { background: var(--ink); color: var(--cream); }
+        .wfm-icon-btn:active { transform: scale(0.94); }
+        .wfm-icon-btn.spin svg { animation: wfSpin 0.7s linear infinite; }
+        .wfm-body { display: flex; flex-direction: column; min-height: 0; }
+        .wfm-search-wrap { position: relative; margin-top: 8px; }
+        .wfm-search {
+            width: 100%;
+            height: 34px;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            background: var(--cream-inset);
+            color: var(--ink);
+            font: inherit;
+            font-size: 12px;
+            padding: 0 30px 0 10px;
+            outline: none;
+            cursor: text !important;
+            user-select: auto !important;
+            transition: border-color 0.14s var(--ease), background 0.14s var(--ease);
+        }
+        .wfm-search:focus {
+            border-color: color-mix(in srgb, var(--cinnabar) 46%, var(--line-strong));
+            background: var(--cream);
+        }
+        .wfm-search::placeholder { color: var(--ink-mute); }
+        .wfm-search-clear {
+            position: absolute;
+            right: 4px;
+            top: 4px;
+            width: 26px;
+            height: 26px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--ink-mute);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer !important;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.12s var(--ease), background 0.12s var(--ease);
+        }
+        .wfm-search-clear.show { opacity: 1; pointer-events: auto; }
+        .wfm-search-clear:hover { background: var(--cream-inset); color: var(--ink); }
+        .wfm-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            z-index: 20;
+            max-height: 186px;
+            overflow: auto;
+            background: var(--cream);
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            box-shadow: var(--shadow-lift);
+            display: none;
+        }
+        .wfm-results.show { display: block; animation: panelExpand 140ms var(--ease); }
+        .wfm-result {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 7px 9px;
+            cursor: pointer !important;
+            border-bottom: 1px solid var(--line);
+        }
+        .wfm-result:last-child { border-bottom: none; }
+        .wfm-result:hover, .wfm-result.active { background: var(--cream-inset); }
+        .wfm-result .name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wfm-result .meta {
+            font-size: 9px;
+            color: var(--ink-mute);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-shrink: 0;
+            max-width: 46%;
+        }
+        .wfm-item-head {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .wfm-item-names { min-width: 0; }
+        .wfm-item-zh {
+            font-size: 14px;
+            font-weight: 750;
+            line-height: 1.25;
+            color: var(--ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wfm-item-en {
+            font-size: 10px;
+            color: var(--ink-mute);
+            line-height: 1.3;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wfm-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .wfm-stat {
+            min-width: 0;
+            padding: 6px 8px;
+            border-radius: 9px;
+            background: var(--cream-inset);
+        }
+        .wfm-stat span {
+            display: block;
+            font-size: 9px;
+            letter-spacing: 0.05em;
+            color: var(--ink-mute);
+        }
+        .wfm-stat b {
+            display: block;
+            margin-top: 1px;
+            font-size: 15px;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
+        }
+        .wfm-stat.sell b { color: var(--cinnabar); }
+        .wfm-stat.buy b { color: var(--celadon); }
+        .wfm-stat.count { text-align: right; }
+        .wfm-stat.count b { font-size: 11px; color: var(--ink-soft); }
+        .wfm-tabs {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--line);
+        }
+        .wfm-tab {
+            border: none;
+            background: transparent;
+            color: var(--ink-mute);
+            font: inherit;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 8px;
+            border-radius: 7px;
+            cursor: pointer !important;
+            transition: background 0.14s var(--ease), color 0.14s var(--ease);
+        }
+        .wfm-tab:hover { background: var(--cream-inset); color: var(--ink); }
+        .wfm-tab.active { background: var(--ink); color: var(--cream); }
+        .wfm-tab span { font-size: 9px; opacity: 0.65; font-weight: 600; }
+        .wfm-online {
+            margin-left: auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 10px;
+            color: var(--ink-mute);
+            cursor: pointer !important;
+            user-select: none;
+        }
+        .wfm-online input { accent-color: var(--cinnabar); }
+        .wfm-orders {
+            margin-top: 4px;
+            overflow: auto;
+            min-height: 74px;
+            max-height: 216px;
+            flex: 1;
+            overscroll-behavior: contain;
+        }
+        .wfm-order {
+            display: grid;
+            grid-template-columns: 8px minmax(0, 1fr) auto auto auto;
+            align-items: center;
+            gap: 7px;
+            padding: 6px;
+            border-radius: 7px;
+            cursor: pointer !important;
+            transition: background 0.12s var(--ease);
+        }
+        .wfm-order:hover { background: var(--cream-inset); }
+        .wfm-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-mute); }
+        .wfm-dot.ingame { background: #3f9a5a; box-shadow: 0 0 0 3px rgba(63, 154, 90, 0.13); }
+        .wfm-dot.online { background: var(--brass); box-shadow: 0 0 0 3px rgba(176, 137, 72, 0.14); }
+        .wfm-dot.offline { background: var(--ink-mute); opacity: 0.38; }
+        .wfm-order .user {
+            min-width: 0;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .wfm-order .qty {
+            font-size: 9px;
+            color: var(--ink-mute);
+            font-variant-numeric: tabular-nums;
+        }
+        .wfm-order .rank {
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--ink-mute);
+            border: 1px solid var(--line-strong);
+            border-radius: 5px;
+            padding: 0 3px;
+            line-height: 1.4;
+            min-width: 18px;
+            text-align: center;
+        }
+        .wfm-order .rank:empty { border-color: transparent; }
+        .wfm-order .price {
+            font-size: 12px;
+            font-weight: 750;
+            color: var(--cinnabar);
+            font-variant-numeric: tabular-nums;
+            text-align: right;
+        }
+        .wfm-order.buy .price { color: var(--celadon); }
+        .wfm-empty {
+            padding: 16px 8px;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.65;
+            color: var(--ink-mute);
+        }
+        .wfm-empty span { display: block; margin-top: 2px; font-size: 10px; color: var(--ink-mute); }
+        .wfm-empty code {
+            font-size: 10px;
+            background: var(--cream-inset);
+            border-radius: 4px;
+            padding: 1px 4px;
+        }
+        .wfm-error { color: var(--cinnabar); }
+        .wfm-retry {
+            margin-top: 8px;
+            border: 1px solid var(--line-strong);
+            background: var(--cream);
+            color: var(--ink-soft);
+            font: inherit;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            cursor: pointer !important;
+        }
+        .wfm-retry:hover { background: var(--ink); color: var(--cream); }
+        .wfm-foot {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 6px;
+            padding: 5px 4px 0;
+            border-top: 1px solid var(--line);
+            font-size: 9px;
+            color: var(--ink-mute);
+            letter-spacing: 0.04em;
+        }
+        .wfm-foot .src-live { color: var(--celadon); }
+        .wfm-foot .src-err { color: var(--cinnabar); }
+        .wfm-orders::-webkit-scrollbar,
+        .wfm-results::-webkit-scrollbar { width: 5px; }
+        .wfm-orders::-webkit-scrollbar-thumb,
+        .wfm-results::-webkit-scrollbar-thumb {
+            background: var(--line-strong);
+            border-radius: 999px;
+        }
+
+        @media (max-width: 1000px) {
+            .wf-market-dock {
+                left: 8px;
+                bottom: 372px;
+                width: min(340px, calc(100vw - 16px));
+                max-height: min(46vh, calc(100vh - 396px));
+            }
+            body.hide-wf-world .wf-market-dock { left: 8px; }
+        }
+
         @media (max-width: 768px) {
             .wf-world-dock {
-                left: 8px;
-                bottom: 56px;
-                width: min(280px, calc(100vw - 16px));
+                position: relative;
+                left: auto;
+                bottom: auto;
+                width: 100%;
+                max-height: none;
+                margin-top: 22px;
+            }
+            .wf-market-dock,
+            .wf-market-dock.collapsed {
+                position: static;
+                left: auto;
+                bottom: auto;
+                width: 100%;
+                max-height: none;
+                margin-top: 12px;
+            }
+            .corner-dock {
+                position: relative;
+                left: auto;
+                right: auto;
+                bottom: auto;
+                width: 100%;
+                margin-top: 14px;
             }
         }
 
@@ -1446,161 +2218,494 @@
                 transition: none !important;
             }
         }
+
+        /* ===== Windows PE 主题 ===== */
+        .pe-badge {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            z-index: 10030;
+            display: none;
+            align-items: center;
+            gap: 7px;
+            padding: 4px 9px;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #444;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            pointer-events: none;
+        }
+        .pe-lotus {
+            width: 16px;
+            height: 16px;
+            color: #9c3d32;
+            flex-shrink: 0;
+        }
+
+        body.theme-winpe {
+            background: #a6a6a6;
+            font-family: 'Segoe UI', 'Microsoft YaHei', 'Noto Sans SC', system-ui, sans-serif;
+            color: #1f1f1f;
+        }
+        body.theme-winpe::before { display: none; }
+        body.theme-winpe .pe-badge { display: flex; }
+        body.theme-winpe .page-brand {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            color: #1f1f1f;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        body.theme-winpe #search {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 4px;
+            padding: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+        }
+        body.theme-winpe #search .suggestions-container {
+            left: 10px;
+            width: calc(100% - 20px);
+        }
+        body.theme-winpe #search-list::after {
+            color: #888;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            letter-spacing: 0.18em;
+            opacity: 0.8;
+        }
+        body.theme-winpe .type-text {
+            background: #2b579a;
+            color: #fff;
+            border-radius: 2px;
+            box-shadow: none;
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            gap: 5px;
+        }
+        body.theme-winpe .type-text::before { width: 4px; height: 4px; opacity: 0.9; }
+        body.theme-winpe .search-type label {
+            border-radius: 2px;
+            color: #444;
+            font-size: 12px;
+            height: 30px;
+            padding: 0 9px;
+        }
+        body.theme-winpe .search-type label:hover { background: #e5f1fb; color: #1f1f1f; }
+        body.theme-winpe .search-type input:checked + label {
+            background: #0078d4;
+            color: #fff;
+            box-shadow: none;
+        }
+        body.theme-winpe .search-type input:checked + label:hover {
+            background: #0078d4;
+            color: #fff;
+            filter: none;
+        }
+        body.theme-winpe #search form {
+            background: #fff;
+            border: 1px solid #8a8a8a;
+            border-radius: 2px;
+            box-shadow: none;
+            padding: 3px 3px 3px 0;
+        }
+        body.theme-winpe #search form:focus-within {
+            border-color: #0078d4;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.22);
+        }
+        body.theme-winpe #search-text {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-size: 16px;
+        }
+        body.theme-winpe #search button {
+            background: #0078d4;
+            border-radius: 2px;
+            color: #fff;
+            min-width: 86px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+        }
+        body.theme-winpe #search button:hover { background: #106ebe; }
+        body.theme-winpe .suggestions-container {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        }
+        body.theme-winpe .suggestion-item { color: #1f1f1f; }
+        body.theme-winpe .suggestion-item:hover,
+        body.theme-winpe .suggestion-item.active { background: #e5f1fb; }
+        body.theme-winpe .suggestion-meta { color: #777; }
+        body.theme-winpe .sites-list { margin-top: 44px; }
+        body.theme-winpe .flex-title {
+            border-bottom: 1px solid #b8b8b8;
+            padding-bottom: 10px;
+            margin-bottom: 14px;
+        }
+        body.theme-winpe .manage-trigger {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            color: #1f1f1f;
+            box-shadow: none;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            padding: 0 12px;
+            height: 34px;
+        }
+        body.theme-winpe .manage-trigger::before {
+            width: 10px;
+            height: 10px;
+            border-radius: 1px;
+            background: #0078d4;
+            box-shadow: none;
+        }
+        body.theme-winpe .manage-trigger:hover {
+            background: #e5f1fb;
+            border-color: #0078d4;
+            color: #1f1f1f;
+            box-shadow: none;
+        }
+        body.theme-winpe.edit-mode .manage-trigger {
+            background: #0078d4;
+            border-color: #0078d4;
+            color: #fff;
+        }
+        body.theme-winpe .custom-shortcuts-inline a {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            color: #444;
+        }
+        body.theme-winpe .custom-shortcuts-inline a:hover {
+            background: #0078d4;
+            border-color: #0078d4;
+            color: #fff;
+        }
+        body.theme-winpe .inline-empty-hint,
+        body.theme-winpe .empty-hint-inline { color: #666; }
+        body.theme-winpe .row { gap: 8px; }
+        body.theme-winpe .box2 {
+            background-image: none;
+            border: 1px solid #d0d0d0;
+            border-radius: 4px;
+            color: #1f1f1f;
+            box-shadow: none;
+            height: 58px;
+        }
+        body.theme-winpe .box2:hover {
+            transform: translateY(-2px);
+            border-color: #0078d4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            filter: none;
+        }
+        body.theme-winpe .xe-comment-entry strong { color: #1f1f1f; }
+        body.theme-winpe .bookmark-domain { color: #777; }
+        body.theme-winpe .bookmark-icon {
+            background: #f2f2f2;
+            box-shadow: inset 0 0 0 1px #d0d0d0;
+        }
+        body.theme-winpe .bookmark-mono { color: #0078d4; }
+        body.theme-winpe .bookmark-item a.gold-border {
+            border-color: #c19c00;
+            box-shadow: inset 0 0 0 1.5px #c19c00;
+        }
+        body.theme-winpe .bookmark-item a.gold-border:hover {
+            box-shadow: inset 0 0 0 1.5px #c19c00, 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+        body.theme-winpe .empty-bookmarks { color: #555; }
+        body.theme-winpe .wf-world-dock,
+        body.theme-winpe .wf-market-dock {
+            background: #f5f6f8;
+            border: 1px solid #b8b8b8;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+            -webkit-backdrop-filter: none;
+            backdrop-filter: none;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .wf-world-head,
+        body.theme-winpe .wfm-head {
+            margin: -10px -10px 8px;
+            padding: 6px 10px;
+            background: #e8e8e8;
+            border-bottom: 1px solid #c8c8c8;
+            border-radius: 3px 3px 0 0;
+        }
+        body.theme-winpe .wf-world-head .title,
+        body.theme-winpe .wfm-title {
+            color: #333;
+            letter-spacing: 0.06em;
+        }
+        body.theme-winpe .wf-world-head .lotus,
+        body.theme-winpe .wfm-title svg { color: #0078d4; }
+        body.theme-winpe .wf-world-refresh,
+        body.theme-winpe .wfm-icon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 2px;
+            color: #444;
+            width: 24px;
+            height: 22px;
+        }
+        body.theme-winpe .wf-world-refresh:hover,
+        body.theme-winpe .wfm-icon-btn:hover {
+            background: #dbe9f9;
+            border-color: #98b8d8;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .wf-world-mini { color: #555; }
+        body.theme-winpe .wf-row,
+        body.theme-winpe .wf-rot-item {
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-left-width: 3px;
+            border-radius: 2px;
+            box-shadow: none;
+        }
+        body.theme-winpe .wf-row:hover,
+        body.theme-winpe .wf-rot-item:hover,
+        body.theme-winpe .wf-rot-item.active {
+            background: #f0f6fc;
+            border-color: #b8d4ea;
+        }
+        body.theme-winpe .wf-name,
+        body.theme-winpe .wf-rot-label { color: #666; font-size: 10px; }
+        body.theme-winpe .wf-state,
+        body.theme-winpe .wf-rot-value { color: #1f1f1f; font-size: 11.5px; }
+        body.theme-winpe .wf-time,
+        body.theme-winpe .wf-rot-time { color: #2c7da0; font-size: 10px; }
+        body.theme-winpe .wf-row.state-day .wf-state { color: #b8860b; }
+        body.theme-winpe .wf-row.state-night .wf-state { color: #3a4f7a; }
+        body.theme-winpe .wf-row.state-warm .wf-state { color: #c0392b; }
+        body.theme-winpe .wf-row.state-cold .wf-state { color: #2980b9; }
+        body.theme-winpe .wf-row.state-fass .wf-state { color: #b85a28; }
+        body.theme-winpe .wf-row.state-vome .wf-state { color: #6b4a9a; }
+        body.theme-winpe .wf-row.state-mood .wf-state { color: #9c3d32; }
+        body.theme-winpe .wf-row.state-corpus .wf-state { color: #2980b9; }
+        body.theme-winpe .wf-row.state-grineer .wf-state { color: #b85a28; }
+        body.theme-winpe .wf-row.state-bounty .wf-state { color: #2c7da0; }
+        body.theme-winpe .wf-icon { background: transparent; }
+        body.theme-winpe .wf-subhead { border-top-color: #c8c8c8; color: #666; }
+        body.theme-winpe .wf-world-foot { border-top-color: #c8c8c8; color: #666; }
+        body.theme-winpe .wf-world-foot .src-live { color: #107c10; }
+        body.theme-winpe .wf-world-foot .src-local { color: #8a6d00; }
+        body.theme-winpe .wf-world-foot .src-err { color: #d13438; }
+        body.theme-winpe .wf-pop {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        body.theme-winpe .wf-pop-head {
+            background: #e8e8e8;
+            border-bottom-color: #c8c8c8;
+            color: #333;
+        }
+        body.theme-winpe .wf-pop-close:hover { background: #dbe9f9; }
+        body.theme-winpe .wf-pop-row { color: #444; }
+        body.theme-winpe .wf-pop-row + .wf-pop-row { border-top-color: #e0e0e0; }
+        body.theme-winpe .wf-pop-row.current { background: #e5f1fb; color: #1f1f1f; }
+        body.theme-winpe .wf-pop-row .tag { background: #f0f0f0; color: #666; }
+        body.theme-winpe .wf-pop-row .tag.s { background: #fde7e9; color: #a4262c; }
+        body.theme-winpe .wf-pop-row .tag.a { background: #fff4ce; color: #7a5c00; }
+        body.theme-winpe .wf-pop-row .tag.bonus { background: #e5f1fb; color: #005a9e; }
+        body.theme-winpe .wf-pop-row .time { color: #666; }
+        body.theme-winpe .wfm-search {
+            background: #fff;
+            border: 1px solid #8a8a8a;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .wfm-search:focus { border-color: #0078d4; background: #fff; }
+        body.theme-winpe .wfm-results {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+        }
+        body.theme-winpe .wfm-result:hover,
+        body.theme-winpe .wfm-result.active { background: #e5f1fb; }
+        body.theme-winpe .wfm-result .name { color: #1f1f1f; }
+        body.theme-winpe .wfm-result .meta { color: #777; }
+        body.theme-winpe .wfm-item-zh { color: #1f1f1f; }
+        body.theme-winpe .wfm-item-en { color: #777; }
+        body.theme-winpe .wfm-stat {
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 2px;
+        }
+        body.theme-winpe .wfm-stat span { color: #777; }
+        body.theme-winpe .wfm-stat.sell b { color: #0078d4; }
+        body.theme-winpe .wfm-stat.buy b { color: #107c10; }
+        body.theme-winpe .wfm-stat.count b { color: #444; }
+        body.theme-winpe .wfm-tabs { border-bottom-color: #c8c8c8; }
+        body.theme-winpe .wfm-tab { border-radius: 2px; color: #666; }
+        body.theme-winpe .wfm-tab:hover { background: #e5f1fb; color: #1f1f1f; }
+        body.theme-winpe .wfm-tab.active { background: #0078d4; color: #fff; }
+        body.theme-winpe .wfm-online input { accent-color: #0078d4; }
+        body.theme-winpe .wfm-order:hover { background: #f0f6fc; }
+        body.theme-winpe .wfm-order .user { color: #333; }
+        body.theme-winpe .wfm-order .price { color: #0078d4; }
+        body.theme-winpe .wfm-order.buy .price { color: #107c10; }
+        body.theme-winpe .wfm-order .rank { border-color: #c8c8c8; color: #666; }
+        body.theme-winpe .wfm-empty { color: #666; }
+        body.theme-winpe .wfm-foot { border-top-color: #c8c8c8; color: #666; }
+        body.theme-winpe .wfm-foot .src-live { color: #107c10; }
+        body.theme-winpe .wfm-foot .src-err { color: #d13438; }
+        body.theme-winpe .wfm-retry {
+            background: #f0f0f0;
+            border: 1px solid #adadad;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .wfm-retry:hover {
+            background: #e5f1fb;
+            border-color: #0078d4;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .live-clock {
+            background: #202020;
+            color: #fff;
+            border: 1px solid #4a4a4a;
+            border-radius: 2px;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            font-size: 18px;
+            padding: 6px 12px;
+        }
+        body.theme-winpe .dock-settings-btn {
+            background: #202020;
+            color: #fff;
+            border: 1px solid #4a4a4a;
+            border-radius: 2px;
+            height: 36px;
+            font-size: 12px;
+            padding: 0 12px;
+        }
+        body.theme-winpe .dock-settings-btn:hover { background: #333; }
+        body.theme-winpe .settings-panel {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 4px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+            color: #1f1f1f;
+        }
+        body.theme-winpe .settings-head h3 { color: #1f1f1f; }
+        body.theme-winpe .settings-section h4 {
+            color: #1f1f1f;
+            border-left-color: #0078d4;
+        }
+        body.theme-winpe .settings-hint { color: #666; }
+        body.theme-winpe .settings-field label { color: #444; }
+        body.theme-winpe .settings-field input[type="text"],
+        body.theme-winpe .settings-field input[type="url"],
+        body.theme-winpe .settings-field input[type="number"],
+        body.theme-winpe .settings-field select {
+            background: #fff;
+            border: 1px solid #8a8a8a;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .settings-field input:focus,
+        body.theme-winpe .settings-field select:focus {
+            border-color: #0078d4;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.18);
+        }
+        body.theme-winpe .theme-chip {
+            background: #f0f0f0;
+            border: 1px solid #adadad;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .theme-chip:hover { background: #e5f1fb; border-color: #0078d4; }
+        body.theme-winpe .theme-chip.active { background: #0078d4; border-color: #0078d4; color: #fff; }
+        body.theme-winpe .btn-ghost,
+        body.theme-winpe .settings-actions button {
+            background: #f0f0f0;
+            border: 1px solid #adadad;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .btn-ghost:hover,
+        body.theme-winpe .settings-actions button:hover {
+            background: #e5f1fb;
+            border-color: #0078d4;
+        }
+        body.theme-winpe .btn-danger {
+            background: #fde7e9;
+            border: 1px solid #d13438;
+            border-radius: 2px;
+            color: #a4262c;
+        }
+        body.theme-winpe .btn-danger:hover { background: #d13438; color: #fff; }
+        body.theme-winpe .action-popup {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 2px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+        }
+        body.theme-winpe .popup-btn { border-radius: 2px; color: #1f1f1f; }
+        body.theme-winpe .popup-btn:hover { background: #e5f1fb; }
+        body.theme-winpe .modal-container {
+            background: #fff;
+            border: 1px solid #b8b8b8;
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+        body.theme-winpe .modal-container h3 { color: #1f1f1f; }
+        body.theme-winpe .modal-container input[type="text"] {
+            background: #fff;
+            border: 1px solid #8a8a8a;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .modal-buttons .cancel-btn {
+            background: #f0f0f0;
+            border: 1px solid #adadad;
+            border-radius: 2px;
+            color: #1f1f1f;
+        }
+        body.theme-winpe .modal-buttons .confirm-btn {
+            background: #0078d4;
+            border: 1px solid #0078d4;
+            border-radius: 2px;
+            color: #fff;
+        }
+        body.theme-winpe .modal-buttons .cancel-btn:hover { background: #e5f1fb; border-color: #0078d4; }
+        body.theme-winpe .modal-buttons .confirm-btn:hover { background: #106ebe; }
+        body.theme-winpe .type-switcher .type-btn { border-radius: 2px; }
+        body.theme-winpe .type-switcher .type-btn.active {
+            background: #0078d4;
+            border-color: #0078d4;
+            color: #fff;
+        }
+        body.theme-winpe #dynamic-toast {
+            background: #202020;
+            color: #fff;
+            border-radius: 2px;
+        }
+        @media (max-width: 1000px) {
+            body.theme-winpe .pe-badge { display: none; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="pe-badge" aria-hidden="true">
+            <svg class="pe-lotus" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c.4 2.8-1.2 5.2-3.6 6.4 2.2.4 4 2 4.6 4.2.6-2.2 2.4-3.8 4.6-4.2C15.2 7.2 13.6 4.8 12 2zm0 9.2c-1.8 1.4-3 3.6-3 6 0 1.4.4 2.8 1.2 4 .8-1.2 1.8-1.8 1.8-1.8s1 .6 1.8 1.8c.8-1.2 1.2-2.6 1.2-4 0-2.4-1.2-4.6-3-6z"/></svg>
+            <span>Warframe PE</span>
+        </div>
         <div class="page-brand" id="page-brand"></div>
 
-        <aside class="wf-world-dock" id="wf-world-dock" aria-label="Warframe 世界状态">
-            <div class="wf-world-head">
-                <div class="title">
-                    <svg class="lotus" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.4 2.8-1.2 5.2-3.6 6.4 2.2.4 4 2 4.6 4.2.6-2.2 2.4-3.8 4.6-4.2C15.2 7.2 13.6 4.8 12 2zm0 9.2c-1.8 1.4-3 3.6-3 6 0 1.4.4 2.8 1.2 4 .8-1.2 1.8-1.8 1.8-1.8s1 .6 1.8 1.8c.8-1.2 1.2-2.6 1.2-4 0-2.4-1.2-4.6-3-6z"/></svg>
-                    WARFRAME
-                </div>
-                <button type="button" class="wf-world-refresh" id="wf-world-refresh" title="刷新状态" aria-label="刷新">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.3-6"/><path d="M21 3v6h-6"/></svg>
-                </button>
-            </div>
-            <div class="wf-world-list" id="wf-world-list"></div>
-            <div class="wf-world-foot">
-                <span id="wf-world-src">加载中…</span>
-                <span id="wf-world-updated">--:--</span>
-            </div>
-        </aside>
+        
 
-        <div class="corner-dock" id="corner-dock">
-            <div id="settings-panel" class="settings-panel" aria-hidden="true">
-                <div class="settings-head">
-                    <h3>界面自定义</h3>
-                    <button type="button" class="settings-close" id="settings-close" aria-label="关闭">×</button>
-                </div>
+        
 
-                <div class="settings-section">
-                    <h4>主题</h4>
-                    <div class="theme-chips" id="theme-chips">
-                        <button type="button" class="theme-chip" data-theme="inkpaper">书桌墨色</button>
-                        <button type="button" class="theme-chip" data-theme="night">墨夜</button>
-                        <button type="button" class="theme-chip" data-theme="celadon">青绿</button>
-                        <button type="button" class="theme-chip" data-theme="plain">素白</button>
-                        <button type="button" class="theme-chip" data-theme="custom">自定义色</button>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>色彩</h4>
-                    <div class="settings-grid">
-                        <div class="settings-field"><label>强调色</label><input type="color" id="pref-accent"></div>
-                        <div class="settings-field"><label>青瓷色</label><input type="color" id="pref-celadon"></div>
-                        <div class="settings-field"><label>纸色</label><input type="color" id="pref-paper"></div>
-                        <div class="settings-field"><label>奶油面</label><input type="color" id="pref-cream"></div>
-                        <div class="settings-field"><label>墨色文字</label><input type="color" id="pref-ink"></div>
-                        <div class="settings-field"><label>书签配色</label>
-                            <select id="pref-cardPalette">
-                                <option value="celadon">青绿阶</option>
-                                <option value="warm">暖铜阶</option>
-                                <option value="mono">单色墨</option>
-                                <option value="accent">强调色阶</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>背景</h4>
-                    <div class="settings-grid">
-                        <div class="settings-field"><label>模式</label>
-                            <select id="pref-bgMode">
-                                <option value="paper">纸感渐变</option>
-                                <option value="solid">纯色</option>
-                                <option value="image">图片</option>
-                            </select>
-                        </div>
-                        <div class="settings-field"><label>纯色</label><input type="color" id="pref-bgSolid"></div>
-                        <div class="settings-field span2"><label>图片 URL</label><input type="url" id="pref-bgImage" placeholder="https://..."></div>
-                        <div class="settings-field"><label>图片遮罩</label><input type="number" id="pref-bgVeil" min="0" max="0.8" step="0.05"></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-grain"> 纸纹颗粒</label></div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>布局</h4>
-                    <div class="settings-grid">
-                        <div class="settings-field"><label>密度</label>
-                            <select id="pref-density">
-                                <option value="compact">紧凑</option>
-                                <option value="normal">适中</option>
-                                <option value="airy">疏朗</option>
-                            </select>
-                        </div>
-                        <div class="settings-field"><label>圆角</label><input type="number" id="pref-radius" min="6" max="28" step="1"></div>
-                        <div class="settings-field"><label>页面宽度</label><input type="number" id="pref-maxWidth" min="720" max="1600" step="20"></div>
-                        <div class="settings-field"><label>搜索宽度</label><input type="number" id="pref-searchWidth" min="420" max="900" step="10"></div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>内容与动效</h4>
-                    <div class="settings-grid">
-                        <div class="settings-field span2"><label>页面标题</label><input type="text" id="pref-pageTitle" maxlength="40"></div>
-                        <div class="settings-field span2"><label>顶部品牌字</label><input type="text" id="pref-brand" placeholder="可留空" maxlength="40"></div>
-                        <div class="settings-field"><label>默认引擎</label>
-                            <select id="pref-defaultEngine">
-                                <option value="type-bing1">必应</option>
-                                <option value="type-baidu">百度</option>
-                                <option value="type-wfwiki">WF wiki</option>
-                                <option value="type-wfmarket">WF market</option>
-                                <option value="type-mcwiki">MC百科</option>
-                                <option value="type-bilibili">bilibili</option>
-                            </select>
-                        </div>
-                        <div class="settings-field"><label>时钟表情</label><input type="text" id="pref-clockEmoji" maxlength="4"></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showClock"> 显示时钟</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-clock24h"> 24 小时制</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showEngines"> 引擎标签</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showSites"> 收藏区域</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-motion"> 动画动效</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showBrand"> 显示品牌字</label></div>
-                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showWfWorld"> WF 世界状态</label></div>
-                    </div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>自定义搜索引擎</h4>
-                    <p class="settings-hint">URL 用 %s 表示关键词，例如 https://example.com/search?q=%s</p>
-                    <div class="settings-grid">
-                        <div class="settings-field"><label>名称</label><input type="text" id="ce-name" maxlength="20" placeholder="引擎名"></div>
-                        <div class="settings-field"><label>占位提示</label><input type="text" id="ce-placeholder" maxlength="40" placeholder="搜索提示"></div>
-                        <div class="settings-field span2"><label>搜索 URL</label><input type="url" id="ce-url" placeholder="https://...?q=%s"></div>
-                    </div>
-                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
-                        <button type="button" class="btn-ghost" id="ce-add">添加引擎</button>
-                    </div>
-                    <div id="custom-engine-list" class="custom-engine-list"></div>
-                </div>
-
-                <div class="settings-section">
-                    <h4>数据备份</h4>
-                    <p class="settings-hint">导出/导入包含：界面设置、书签、快链、自定义引擎、最近搜索。换设备时导入即可恢复。</p>
-                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
-                        <button type="button" class="btn-ghost" id="settings-export">导出全部</button>
-                        <button type="button" class="btn-ghost" id="settings-import">导入全部</button>
-                        <button type="button" class="btn-ghost" id="settings-copy-backup">复制备份</button>
-                        <button type="button" class="btn-ghost" id="settings-clear-recent">清空最近搜索</button>
-                        <button type="button" class="btn-danger" id="settings-reset">重置界面</button>
-                    </div>
-                </div>
-                <input type="file" id="settings-file-import" accept=".json,application/json">
-            </div>
-
-            <div id="liveClock" class="live-clock">
-                <span id="emoji-copy">😀</span>
-                <span id="time-display">--:--</span>
-            </div>
-            <button type="button" class="dock-settings-btn" id="settings-toggle" aria-expanded="false">
-                <span class="gear">⚙</span> 自定义
-            </button>
-        </div>
+        
 	
         <div id="search" class="s-search">
             <div id="search-list" class="hide-type-list">
@@ -1673,8 +2778,248 @@
                 </div>
             </div>
             <div class="row" id="dynamic-bookmarks"></div>
+
+        
         </div>
-    </div>
+
+        <aside class="wf-world-dock" id="wf-world-dock" aria-label="Warframe 世界状态">
+            <div class="wf-world-head">
+                <div class="title">
+                    <svg class="lotus" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c.4 2.8-1.2 5.2-3.6 6.4 2.2.4 4 2 4.6 4.2.6-2.2 2.4-3.8 4.6-4.2C15.2 7.2 13.6 4.8 12 2zm0 9.2c-1.8 1.4-3 3.6-3 6 0 1.4.4 2.8 1.2 4 .8-1.2 1.8-1.8 1.8-1.8s1 .6 1.8 1.8c.8-1.2 1.2-2.6 1.2-4 0-2.4-1.2-4.6-3-6z"/></svg>
+                    WARFRAME
+                    <span class="wf-world-mini" id="wf-world-mini"></span>
+                </div>
+                <div class="wf-world-actions">
+                    <button type="button" class="wf-world-refresh wf-world-btn" id="wf-world-refresh" title="刷新状态" aria-label="刷新">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.3-6"/><path d="M21 3v6h-6"/></svg>
+                    </button>
+                    <button type="button" class="wf-world-refresh wf-world-btn" id="wf-world-collapse" title="收起" aria-label="收起" aria-expanded="true">−</button>
+                </div>
+            </div>
+            <div class="wf-world-list" id="wf-world-list"></div>
+            <div class="wf-subhead">
+                <span>轮换</span>
+                <span id="wf-weekly-reset">--</span>
+            </div>
+            <div class="wf-rot-grid">
+                <div class="wf-rot-item" data-pop="steel" tabindex="0" role="button" aria-label="钢铁之路轮换">
+                    <div class="wf-rot-label">钢铁之路</div>
+                    <div class="wf-rot-value" id="wf-steel-value">--</div>
+                    <div class="wf-rot-time" id="wf-steel-time">--</div>
+                </div>
+                <div class="wf-rot-item" data-pop="bird3" tabindex="0" role="button" aria-label="执刑官源力石轮换">
+                    <div class="wf-rot-label">鸟三</div>
+                    <div class="wf-rot-value" id="wf-bird3-value">--</div>
+                    <div class="wf-rot-time" id="wf-bird3-time">--</div>
+                </div>
+                <div class="wf-rot-item" data-pop="circuit" tabindex="0" role="button" aria-label="无尽回廊轮换">
+                    <div class="wf-rot-label">无尽回廊</div>
+                    <div class="wf-rot-value" id="wf-circuit-value">--</div>
+                    <div class="wf-rot-time" id="wf-circuit-time">--</div>
+                </div>
+                <div class="wf-rot-item" data-pop="arb" tabindex="0" role="button" aria-label="仲裁推荐">
+                    <div class="wf-rot-label">仲裁</div>
+                    <div class="wf-rot-value" id="wf-arb-value">--</div>
+                    <div class="wf-rot-time" id="wf-arb-time">--</div>
+                </div>
+            </div>
+            <div class="wf-world-foot">
+                <span id="wf-world-src">加载中…</span>
+                <span id="wf-world-updated">--:--</span>
+            </div>
+            <div class="wf-pop" id="wf-pop" hidden>
+                <div class="wf-pop-head">
+                    <span id="wf-pop-title">详情</span>
+                    <button type="button" class="wf-pop-close" id="wf-pop-close" aria-label="关闭">×</button>
+                </div>
+                <div class="wf-pop-body" id="wf-pop-body"></div>
+            </div>
+        </aside>
+
+        <aside class="wf-market-dock" id="wf-market-dock" aria-label="Warframe 市场行情">
+            <div class="wfm-head">
+                <div class="wfm-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 4 3 8-9"/><path d="M14 6h6v6"/></svg>
+                    MARKET
+                </div>
+                <div class="wfm-head-actions">
+                    <a class="wfm-icon-btn" id="wfm-open-home" href="https://warframe.market/zh-hans/" target="_blank" rel="noopener" title="打开 Warframe Market" aria-label="打开 Warframe Market">↗</a>
+                    <button type="button" class="wfm-icon-btn" id="wfm-refresh" title="刷新价格" aria-label="刷新价格">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 12a9 9 0 1 1-2.3-6"/><path d="M21 3v6h-6"/></svg>
+                    </button>
+                    <button type="button" class="wfm-icon-btn" id="wfm-collapse" title="收起" aria-expanded="true" aria-label="收起">−</button>
+                </div>
+            </div>
+            <div class="wfm-body">
+                <div class="wfm-search-wrap">
+                    <input type="text" class="wfm-search" id="wfm-search" placeholder="搜索物品，中/英文或 market 链接" autocomplete="off" spellcheck="false">
+                    <button type="button" class="wfm-search-clear" id="wfm-search-clear" aria-label="清空">×</button>
+                    <div class="wfm-results" id="wfm-results" role="listbox"></div>
+                </div>
+                <div class="wfm-item-head" id="wfm-item-head" hidden>
+                    <div class="wfm-item-names">
+                        <div class="wfm-item-zh" id="wfm-item-zh"></div>
+                        <div class="wfm-item-en" id="wfm-item-en"></div>
+                    </div>
+                    <a class="wfm-icon-btn" id="wfm-open-item" href="https://warframe.market/zh-hans/" target="_blank" rel="noopener" title="在市场打开" aria-label="在市场打开" hidden>↗</a>
+                </div>
+                <div class="wfm-stats" id="wfm-stats" hidden>
+                    <div class="wfm-stat sell"><span>最低售价</span><b id="wfm-min-sell">—</b></div>
+                    <div class="wfm-stat buy"><span>最高求购</span><b id="wfm-max-buy">—</b></div>
+                    <div class="wfm-stat count"><span>在售 / 求购</span><b id="wfm-counts">—</b></div>
+                </div>
+                <div class="wfm-tabs" id="wfm-tabs" hidden>
+                    <button type="button" class="wfm-tab active" data-tab="sell">出售 <span id="wfm-sell-count"></span></button>
+                    <button type="button" class="wfm-tab" data-tab="buy">求购 <span id="wfm-buy-count"></span></button>
+                    <label class="wfm-online"><input type="checkbox" id="wfm-online-only" checked> 仅在线</label>
+                </div>
+                <div class="wfm-orders" id="wfm-orders">
+                    <div class="wfm-empty">输入物品名查看实时挂单与价格<span>价格由本机代理转发 warframe.market</span></div>
+                </div>
+                <div class="wfm-foot">
+                    <span id="wfm-src">待搜索</span>
+                    <span id="wfm-updated">--:--</span>
+                </div>
+            </div>
+        </aside>
+
+    
+
+        <div class="corner-dock" id="corner-dock">
+            <div id="settings-panel" class="settings-panel" aria-hidden="true">
+                <div class="settings-head">
+                    <h3>界面自定义</h3>
+                    <button type="button" class="settings-close" id="settings-close" aria-label="关闭">×</button>
+                </div>
+
+                <div class="settings-section">
+                    <h4>主题</h4>
+                    <div class="theme-chips" id="theme-chips">
+                        <button type="button" class="theme-chip" data-theme="inkpaper">Windows PE</button>
+                        <button type="button" class="theme-chip" data-theme="night">墨夜</button>
+                        <button type="button" class="theme-chip" data-theme="celadon">青绿</button>
+                        <button type="button" class="theme-chip" data-theme="plain">素白</button>
+                        <button type="button" class="theme-chip" data-theme="custom">自定义色</button>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>色彩</h4>
+                    <div class="settings-grid">
+                        <div class="settings-field"><label>强调色</label><input type="color" id="pref-accent"></div>
+                        <div class="settings-field"><label>青瓷色</label><input type="color" id="pref-celadon"></div>
+                        <div class="settings-field"><label>纸色</label><input type="color" id="pref-paper"></div>
+                        <div class="settings-field"><label>奶油面</label><input type="color" id="pref-cream"></div>
+                        <div class="settings-field"><label>墨色文字</label><input type="color" id="pref-ink"></div>
+                        <div class="settings-field"><label>书签配色</label>
+                            <select id="pref-cardPalette">
+                                <option value="winpe">Windows 白卡</option>
+                                <option value="celadon">青绿阶</option>
+                                <option value="warm">暖铜阶</option>
+                                <option value="mono">单色墨</option>
+                                <option value="accent">强调色阶</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>背景</h4>
+                    <div class="settings-grid">
+                        <div class="settings-field"><label>模式</label>
+                            <select id="pref-bgMode">
+                                <option value="paper">纸感渐变</option>
+                                <option value="solid">纯色</option>
+                                <option value="image">图片</option>
+                            </select>
+                        </div>
+                        <div class="settings-field"><label>纯色</label><input type="color" id="pref-bgSolid"></div>
+                        <div class="settings-field span2"><label>图片 URL</label><input type="url" id="pref-bgImage" placeholder="https://..."></div>
+                        <div class="settings-field"><label>图片遮罩</label><input type="number" id="pref-bgVeil" min="0" max="0.8" step="0.05"></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-grain"> 纸纹颗粒</label></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>布局</h4>
+                    <div class="settings-grid">
+                        <div class="settings-field"><label>密度</label>
+                            <select id="pref-density">
+                                <option value="compact">紧凑</option>
+                                <option value="normal">适中</option>
+                                <option value="airy">疏朗</option>
+                            </select>
+                        </div>
+                        <div class="settings-field"><label>圆角</label><input type="number" id="pref-radius" min="6" max="28" step="1"></div>
+                        <div class="settings-field"><label>页面宽度</label><input type="number" id="pref-maxWidth" min="720" max="1600" step="20"></div>
+                        <div class="settings-field"><label>搜索宽度</label><input type="number" id="pref-searchWidth" min="420" max="900" step="10"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>内容与动效</h4>
+                    <div class="settings-grid">
+                        <div class="settings-field span2"><label>页面标题</label><input type="text" id="pref-pageTitle" maxlength="40"></div>
+                        <div class="settings-field span2"><label>顶部品牌字</label><input type="text" id="pref-brand" placeholder="可留空" maxlength="40"></div>
+                        <div class="settings-field"><label>默认引擎</label>
+                            <select id="pref-defaultEngine">
+                                <option value="type-bing1">必应</option>
+                                <option value="type-baidu">百度</option>
+                                <option value="type-wfwiki">WF wiki</option>
+                                <option value="type-wfmarket">WF market</option>
+                                <option value="type-mcwiki">MC百科</option>
+                                <option value="type-bilibili">bilibili</option>
+                            </select>
+                        </div>
+                        <div class="settings-field"><label>时钟表情</label><input type="text" id="pref-clockEmoji" maxlength="4"></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showClock"> 显示时钟</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-clock24h"> 24 小时制</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showEngines"> 引擎标签</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showSites"> 收藏区域</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-motion"> 动画动效</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showBrand"> 显示品牌字</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showWfWorld"> WF 世界状态</label></div>
+                        <div class="settings-field"><label class="settings-check"><input type="checkbox" id="pref-showWfMarket"> WF 市场窗口</label></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>自定义搜索引擎</h4>
+                    <p class="settings-hint">URL 用 %s 表示关键词，例如 https://example.com/search?q=%s</p>
+                    <div class="settings-grid">
+                        <div class="settings-field"><label>名称</label><input type="text" id="ce-name" maxlength="20" placeholder="引擎名"></div>
+                        <div class="settings-field"><label>占位提示</label><input type="text" id="ce-placeholder" maxlength="40" placeholder="搜索提示"></div>
+                        <div class="settings-field span2"><label>搜索 URL</label><input type="url" id="ce-url" placeholder="https://...?q=%s"></div>
+                    </div>
+                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
+                        <button type="button" class="btn-ghost" id="ce-add">添加引擎</button>
+                    </div>
+                    <div id="custom-engine-list" class="custom-engine-list"></div>
+                </div>
+
+                <div class="settings-section">
+                    <h4>数据备份</h4>
+                    <p class="settings-hint">导出/导入包含：界面设置、书签、快链、自定义引擎、最近搜索。换设备时导入即可恢复。</p>
+                    <div class="settings-actions" style="margin-top:10px;border-top:none;padding-top:0;">
+                        <button type="button" class="btn-ghost" id="settings-export">导出全部</button>
+                        <button type="button" class="btn-ghost" id="settings-import">导入全部</button>
+                        <button type="button" class="btn-ghost" id="settings-copy-backup">复制备份</button>
+                        <button type="button" class="btn-ghost" id="settings-clear-recent">清空最近搜索</button>
+                        <button type="button" class="btn-danger" id="settings-reset">重置界面</button>
+                    </div>
+                </div>
+                <input type="file" id="settings-file-import" accept=".json,application/json">
+            </div>
+
+            <div id="liveClock" class="live-clock">
+                <span id="emoji-copy">😀</span>
+                <span id="time-display">--:--</span>
+            </div>
+            <button type="button" class="dock-settings-btn" id="settings-toggle" aria-expanded="false">
+                <span class="gear">⚙</span> 自定义
+            </button>
+        </div>
+</div>
 
     <div id="addModal" class="modal-overlay">
         <div class="modal-container">
@@ -1879,18 +3224,28 @@
                 const zh = item.zh || '';
                 const slug = (item.slug || '').toLowerCase();
                 const slugQ = qLower.replace(/\s+/g, '_');
+                const norm = s => String(s || '').toLowerCase().replace(/[\s·・_\-'’/]+/g, '');
+                const enNorm = norm(en);
+                const zhNorm = norm(zh);
+                const qNorm = norm(q);
                 let score = 0;
                 if (preferZh) {
                     if (zh === q) score = 1000;
+                    else if (qNorm && zhNorm === qNorm) score = 960;
                     else if (zh.startsWith(q)) score = 820;
+                    else if (qNorm && zhNorm.startsWith(qNorm)) score = 780;
                     else if (zh.includes(q)) score = 640;
+                    else if (qNorm && zhNorm.includes(qNorm)) score = 600;
                     else if (en.startsWith(qLower) || slug.startsWith(slugQ)) score = 420;
                     else if (en.includes(qLower) || slug.includes(slugQ)) score = 220;
                 } else {
                     if (en === qLower) score = 1000;
                     else if (slug === slugQ) score = 950;
+                    else if (qNorm && enNorm === qNorm) score = 920;
                     else if (en.startsWith(qLower) || slug.startsWith(slugQ)) score = 800;
+                    else if (qNorm && enNorm.startsWith(qNorm)) score = 760;
                     else if (en.includes(qLower) || slug.includes(slugQ)) score = 600;
+                    else if (qNorm && enNorm.includes(qNorm)) score = 560;
                     else if (zh.includes(q) || zh.toLowerCase().includes(qLower)) score = 300;
                 }
                 return score;
@@ -2224,8 +3579,46 @@
             
 
 
-            // ========== Warframe 世界状态 ==========
+            // ========== Warframe 世界状态（官方 worldstate + WFCD 精确锚点） ==========
             const WF_API = 'https://api.warframestat.us/pc?language=zh';
+            const WF_PROXY_WS = 'http://127.0.0.1:8898/api/wf/worldstate';
+            const WF_WORLD_COLLAPSE_KEY = 'wf_world_collapsed';
+            const WF_WEEKLY_ANCHOR = Date.UTC(2026, 9, 12, 0, 0, 0); // 2026-10-12 周一 00:00 UTC
+            const WF_CETUS_ANCHOR = Date.parse('2026-10-17T16:13:22.090Z'); // 官方 CetusSyndicate 起始（白天开始）
+            const WF_VALLIS_ANCHOR = Date.parse('2026-02-04T19:46:48Z'); // WFCD 校准点
+            const WF_ZARIMAN_ANCHOR = 1655182800000; // WFCD Corpus 校准点
+            const WF_STEEL_ANCHOR = Date.parse('2020-11-16T00:00:00Z');
+            const WF_STEEL_ROTATION = [
+                'Umbra Forma 蓝图', '50,000 赤毒', '组合枪裂罅 Mod', '3x Forma',
+                'Zaw 裂罅 Mod', '30,000 内融核心', '步枪裂罅 Mod', '霰弹枪裂罅 Mod'
+            ];
+            const WF_ARCHON_ROTATION = [
+                { boss: 'SORTIE_BOSS_BOREAL', label: 'Boreal', shard: '琥珀' },
+                { boss: 'SORTIE_BOSS_AMAR', label: 'Amar', shard: '蔚蓝' },
+                { boss: 'SORTIE_BOSS_NIRA', label: 'Nira', shard: '深红' }
+            ];
+            const WF_ARCHON_SHARDS = {
+                SORTIE_BOSS_BOREAL: '琥珀',
+                SORTIE_BOSS_AMAR: '蔚蓝',
+                SORTIE_BOSS_NIRA: '深红'
+            };
+            const WF_CIRCUIT_WEEKS = [
+                ['布莱顿灵化之源', '拉托灵化之源', '空刃灵化之源', '帕里斯灵化之源', '苦无灵化之源'],
+                ['野猪灵化之源', '咖玛腕甲枪灵化之源', '安格斯壮灵化之源', '蛇发女妖灵化之源', '夺魂死神灵化之源'],
+                ['玻之武杖灵化之源', '拉特昂灵化之源', '盗贼灵化之源', '弗拉克斯灵化之源', '斯特朗灵化之源'],
+                ['雷克斯灵化之源', '执法者灵化之源', '螺钉步枪灵化之源', '野马灵化之源', '陶瓷匕首灵化之源'],
+                ['托里德灵化之源', '毒囊双枪灵化之源', '恶脓双斧灵化之源', '米特尔灵化之源', '原子矿融炮灵化之源'],
+                ['认知&冲击灵化之源', '月神灵化之源', '瓦斯托灵化之源', '海波单剑灵化之源', '伯斯顿灵化之源'],
+                ['席尔火枪灵化之源', '西伯利亚冰锤灵化之源', '恐惧灵化之源', '绝望灵化之源', '憎恨灵化之源'],
+                ['德拉灵化之源', '席芭莉丝灵化之源', '锡斯特灵化之源', '暗杀者灵化之源', '翁灵化之源'],
+                ['守望者灵化之源', '史特克灵化之源', '布里斯提卡灵化之源', '技巧之剑灵化之源', '奥比克斯灵化之源']
+            ];
+            const WF_BOUNTY_ORDER = [
+                { key: 'C', label: 'C 突变原聚合物' },
+                { key: 'A', label: 'A 电磁力场装置' },
+                { key: 'B', label: 'B 爆燃喷射器' }
+            ];
+            const WF_BOUNTY_ANCHOR = WF_CETUS_ANCHOR;
             const WF_ICONS = {
                 day: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>',
                 night: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 14.5A7.5 7.5 0 0 1 9.5 6 8 8 0 1 0 18 14.5z"/></svg>',
@@ -2236,281 +3629,1163 @@
                 corpus: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h16v2H4zm2 4h12v8H6zm3-8h6l1 3H8z"/></svg>',
                 grineer: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 10h12l-1 10H7L6 10zm3-5h6l1 3H8l1-3zM11 13h2v5h-2z"/></svg>',
                 mood: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l2.2 6.6H21l-5.4 4 2.1 6.4L12 16.8 6.3 20l2.1-6.4L3 9.6h6.8z"/></svg>',
-                week: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>'
+                week: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+                bounty: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 7v10M9 9h6M9 15h6"/></svg>'
             };
             const WF_MOOD_ZH = {
                 joy: '喜悦', sorrow: '悲伤', fear: '恐惧', anger: '愤怒', envy: '嫉妒',
                 Happiness: '喜悦', Sorrow: '悲伤', Fear: '恐惧', Anger: '愤怒', Envy: '嫉妒'
             };
+            const WF_ROW_DEFS = [
+                { key: 'cetus', name: '希图斯', full: '希图斯 / 地球平原' },
+                { key: 'vallis', name: '福尔图娜', full: '福尔图娜 / 奥布山谷' },
+                { key: 'cambion', name: '魔胎之境', full: '殁世幽都 / 魔胎之境' },
+                { key: 'zariman', name: '扎里曼', full: '扎里曼' },
+                { key: 'duviri', name: '双衍王境', full: '双衍王境' },
+                { key: 'bounty', name: '赏金', full: '赏金（所有赏金同一奖励池）' }
+            ];
 
-            function formatRemain(ms) {
+            let wfRows = null;
+            let wfRot = null;
+            let wfSrcKind = 'local';
+            let wfTimer = null;
+            let wfTickTimer = null;
+            let wfArbRows = null;
+            let wfArbLoading = null;
+            let wfArbHourKey = '';
+            let wfArbView = null;
+            let wfPopType = '';
+
+            function formatWfTime(ms) {
                 if (!Number.isFinite(ms) || ms < 0) ms = 0;
                 const total = Math.floor(ms / 1000);
-                const h = Math.floor(total / 3600);
+                const d = Math.floor(total / 86400);
+                const h = Math.floor((total % 86400) / 3600);
                 const m = Math.floor((total % 3600) / 60);
                 const s = total % 60;
-                if (h > 0) return `${h}时${String(m).padStart(2,'0')}分`;
-                if (m > 0) return `${m}分${String(s).padStart(2,'0')}秒`;
-                return `${s}秒`;
+                if (d > 0) return `${d}天${h}时`;
+                if (h > 0) return `${h}:${String(m).padStart(2, '0')}`;
+                return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
             }
-            function remainUntil(isoOrMs) {
-                const t = typeof isoOrMs === 'number' ? isoOrMs : Date.parse(isoOrMs);
-                if (!Number.isFinite(t)) return 0;
-                return Math.max(0, t - Date.now());
+            function formatArbTime(d) {
+                if (!(d instanceof Date) || !Number.isFinite(d.getTime())) return '--:--';
+                return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
             }
-            function nextWeeklyResetMs() {
-                // 周一 00:00 UTC（与游戏周常重置对齐）
-                const now = Date.now();
-                const d = new Date();
-                const next = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0));
-                const day = next.getUTCDay(); // 0=Sun, 1=Mon
+            function nextWeeklyResetMs(now = Date.now()) {
+                const d = new Date(now);
+                const day = d.getUTCDay();
                 let add = (1 - day + 7) % 7;
-                if (add === 0 && now >= next.getTime()) add = 7;
-                next.setUTCDate(next.getUTCDate() + add);
-                return Math.max(0, next.getTime() - now);
+                if (add === 0) add = 7;
+                const next = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + add);
+                return Math.max(0, next - now);
             }
-            // 本地周期回退（开放世界），基于社区常用纪元对齐
+            function resolveWfAssetUrl(name) {
+                try { return new URL(name, window.location.href).href; } catch (e) { return name; }
+            }
+
+            // 希图斯：100 分钟白天 + 50 分钟黑夜，锚点来自官方 CetusSyndicate 的白天开始
             function localCetus(now = Date.now()) {
-                const dayMs = 100 * 60 * 1000, nightMs = 50 * 60 * 1000, cycle = dayMs + nightMs;
-                const epoch = 1526978707000;
-                const since = ((now - epoch) % cycle + cycle) % cycle;
+                const cycle = 9000 * 1000, dayMs = 6000 * 1000;
+                const since = ((now - WF_CETUS_ANCHOR) % cycle + cycle) % cycle;
                 const isDay = since < dayMs;
-                const left = isDay ? (dayMs - since) : (cycle - since);
-                return { state: isDay ? 'day' : 'night', label: isDay ? '白天' : '夜晚', remain: left, expiryMs: now + left, icon: isDay ? 'day' : 'night', iconState: isDay ? 'day' : 'night' };
+                const left = isDay ? dayMs - since : cycle - since;
+                return {
+                    state: isDay ? 'day' : 'night',
+                    label: isDay ? '白天' : '夜晚',
+                    remain: left,
+                    expiryMs: now + left,
+                    icon: isDay ? 'day' : 'night',
+                    iconState: isDay ? 'day' : 'night'
+                };
             }
+            // 瓦利斯：400 秒温暖 + 1200 秒寒冷，WFCD 的 2026 锚点
             function localVallis(now = Date.now()) {
-                const warmMs = 400 * 1000, coldMs = 1200 * 1000, cycle = warmMs + coldMs;
-                const epoch = 1541837622000;
-                const since = ((now - epoch) % cycle + cycle) % cycle;
-                const isWarm = since < warmMs;
-                const left = isWarm ? (warmMs - since) : (cycle - since);
-                return { state: isWarm ? 'warm' : 'cold', label: isWarm ? '温暖' : '寒冷', remain: left, expiryMs: now + left, icon: isWarm ? 'warm' : 'cold', iconState: isWarm ? 'warm' : 'cold' };
+                const loop = 1600000, coldMs = 1200000;
+                const since = ((now - WF_VALLIS_ANCHOR) % loop + loop) % loop;
+                const toNextFull = loop - since;
+                const isWarm = toNextFull > coldMs;
+                const left = isWarm ? toNextFull - coldMs : toNextFull;
+                return {
+                    state: isWarm ? 'warm' : 'cold',
+                    label: isWarm ? '温暖' : '寒冷',
+                    remain: left,
+                    expiryMs: now + left,
+                    icon: isWarm ? 'warm' : 'cold',
+                    iconState: isWarm ? 'warm' : 'cold'
+                };
             }
             function localCambion(now = Date.now()) {
                 const c = localCetus(now);
                 const isFass = c.state === 'day';
-                return { state: isFass ? 'fass' : 'vome', label: isFass ? '法丝 Fass' : '沃姆 Vome', remain: c.remain, expiryMs: c.expiryMs, icon: isFass ? 'fass' : 'vome', iconState: isFass ? 'fass' : 'vome' };
+                return {
+                    state: isFass ? 'fass' : 'vome',
+                    label: isFass ? '法丝 Fass' : '沃姆 Vome',
+                    remain: c.remain,
+                    expiryMs: c.expiryMs,
+                    icon: isFass ? 'fass' : 'vome',
+                    iconState: isFass ? 'fass' : 'vome'
+                };
+            }
+            function nextBountyEndMs(now = Date.now()) {
+                const cycle = 9000 * 1000;
+                return WF_BOUNTY_ANCHOR + Math.ceil((now - WF_BOUNTY_ANCHOR) / cycle) * cycle;
+            }
+            // 扎里曼：每 2.5 小时换阵营，状态用 WFCD Corpus 锚点判断
+            function localZariman(now = Date.now(), bountyEndMs) {
+                const end = bountyEndMs || nextBountyEndMs(now);
+                const endMinus = end - 5000;
+                const left = Math.max(0, endMinus - now);
+                const elapsed = (((endMinus - WF_ZARIMAN_ANCHOR) % 18000000) + 18000000) % 18000000;
+                const leftInCycle = 18000000 - elapsed;
+                const isCorpus = leftInCycle > 9000000;
+                return {
+                    state: isCorpus ? 'corpus' : 'grineer',
+                    label: isCorpus ? 'Corpus 控制' : 'Grineer 控制',
+                    remain: left,
+                    expiryMs: endMinus,
+                    icon: isCorpus ? 'corpus' : 'grineer',
+                    iconState: isCorpus ? 'corpus' : 'grineer'
+                };
+            }
+            // 双衍王境：每 2 小时一种情绪，WFCD 公式
+            function localDuviri(now = Date.now()) {
+                const cycle = 36000, stateTime = 7200;
+                const states = ['sorrow', 'fear', 'joy', 'anger', 'envy'];
+                const delta = ((Math.floor(now / 1000) - 52) % cycle + cycle) % cycle;
+                const idx = Math.floor(delta / stateTime) % states.length;
+                const left = (stateTime - (delta % stateTime)) * 1000;
+                return {
+                    state: states[idx],
+                    label: WF_MOOD_ZH[states[idx]] || states[idx],
+                    remain: left,
+                    expiryMs: now + left,
+                    icon: 'mood',
+                    iconState: 'mood'
+                };
+            }
+            function localBounty(now = Date.now()) {
+                const cycle = 9000 * 1000;
+                const since = ((now - WF_BOUNTY_ANCHOR) % cycle + cycle) % cycle;
+                const rawIdx = Math.floor((now - WF_BOUNTY_ANCHOR) / cycle);
+                const idx = ((rawIdx % 3) + 3) % 3;
+                const item = WF_BOUNTY_ORDER[idx];
+                return {
+                    state: 'bounty',
+                    label: item.label,
+                    remain: cycle - since,
+                    expiryMs: now + (cycle - since),
+                    icon: 'bounty',
+                    iconState: 'bounty',
+                    key: item.key
+                };
+            }
+            function localSteelPath(now = Date.now()) {
+                const since = (now - WF_STEEL_ANCHOR) / 1000;
+                const idx = Math.floor((since % 4838400) / 604800);
+                return {
+                    index: idx,
+                    reward: WF_STEEL_ROTATION[idx] || '—',
+                    resetMs: nextWeeklyResetMs(now)
+                };
+            }
+            function localArchon(now = Date.now()) {
+                const weeks = Math.floor((now - WF_WEEKLY_ANCHOR) / 604800000);
+                const idx = ((weeks % 3) + 3) % 3;
+                const item = WF_ARCHON_ROTATION[idx];
+                return {
+                    boss: item.boss,
+                    label: item.label,
+                    shard: item.shard,
+                    resetMs: nextWeeklyResetMs(now)
+                };
+            }
+            function localCircuit(now = Date.now()) {
+                const weeks = Math.floor((now - WF_WEEKLY_ANCHOR) / 604800000);
+                const idx = ((weeks + 6) % 9 + 9) % 9;
+                return {
+                    week: idx + 1,
+                    items: WF_CIRCUIT_WEEKS[idx],
+                    resetMs: nextWeeklyResetMs(now)
+                };
+            }
+            function circuitItems(rot) {
+                if (!rot) return [];
+                const local = WF_CIRCUIT_WEEKS[((rot.week || 1) - 1 + 9) % 9];
+                return local || rot.items || [];
             }
 
-            function mapCetus(api) {
+            function mapWfApiCetus(api) {
                 if (!api) return localCetus();
-                const isDay = api.isDay === true || String(api.state || '').toLowerCase() === 'day';
                 const expiryMs = Date.parse(api.expiry);
+                if (!Number.isFinite(expiryMs)) return localCetus();
+                const isDay = api.isDay === true || String(api.state || '').toLowerCase() === 'day';
                 return {
                     state: isDay ? 'day' : 'night',
                     label: isDay ? '白天' : '夜晚',
-                    remain: remainUntil(expiryMs),
+                    remain: Math.max(0, expiryMs - Date.now()),
                     expiryMs,
                     icon: isDay ? 'day' : 'night',
                     iconState: isDay ? 'day' : 'night'
                 };
             }
-            function mapVallis(api) {
+            function mapWfApiVallis(api) {
                 if (!api) return localVallis();
-                const isWarm = api.isWarm === true || String(api.state || '').toLowerCase() === 'warm';
                 const expiryMs = Date.parse(api.expiry);
+                if (!Number.isFinite(expiryMs)) return localVallis();
+                const isWarm = api.isWarm === true || String(api.state || '').toLowerCase() === 'warm';
                 return {
                     state: isWarm ? 'warm' : 'cold',
                     label: isWarm ? '温暖' : '寒冷',
-                    remain: remainUntil(expiryMs),
+                    remain: Math.max(0, expiryMs - Date.now()),
                     expiryMs,
                     icon: isWarm ? 'warm' : 'cold',
                     iconState: isWarm ? 'warm' : 'cold'
                 };
             }
-            function mapCambion(api) {
+            function mapWfApiCambion(api) {
                 if (!api) return localCambion();
-                const st = String(api.state || api.active || '').toLowerCase();
-                const isFass = st !== 'vome';
                 const expiryMs = Date.parse(api.expiry);
+                if (!Number.isFinite(expiryMs)) return localCambion();
+                const isFass = String(api.state || api.active || '').toLowerCase() !== 'vome';
                 return {
                     state: isFass ? 'fass' : 'vome',
                     label: isFass ? '法丝 Fass' : '沃姆 Vome',
-                    remain: remainUntil(expiryMs),
+                    remain: Math.max(0, expiryMs - Date.now()),
                     expiryMs,
                     icon: isFass ? 'fass' : 'vome',
                     iconState: isFass ? 'fass' : 'vome'
                 };
             }
-            function mapZariman(api) {
-                if (!api) return { state: 'unknown', label: '等待数据', remain: 0, icon: 'corpus', iconState: 'week' };
-                const isCorpus = api.isCorpus === true || String(api.state || '').toLowerCase().includes('corpus');
+            function mapWfApiZariman(api) {
+                if (!api) return localZariman();
                 const expiryMs = Date.parse(api.expiry);
+                if (!Number.isFinite(expiryMs)) return localZariman();
+                const isCorpus = api.isCorpus === true || String(api.state || '').toLowerCase().includes('corpus');
                 return {
                     state: isCorpus ? 'corpus' : 'grineer',
                     label: isCorpus ? 'Corpus 控制' : 'Grineer 控制',
-                    remain: remainUntil(expiryMs),
+                    remain: Math.max(0, expiryMs - Date.now()),
                     expiryMs,
                     icon: isCorpus ? 'corpus' : 'grineer',
                     iconState: isCorpus ? 'corpus' : 'grineer'
                 };
             }
-            function mapDuviri(api) {
-                if (!api) return { state: 'unknown', label: '等待数据', remain: 0, icon: 'mood', iconState: 'mood' };
+            function mapWfApiDuviri(api) {
+                if (!api) return localDuviri();
+                const expiryMs = Date.parse(api.expiry);
+                if (!Number.isFinite(expiryMs)) return localDuviri();
                 const key = String(api.state || '').toLowerCase();
                 const label = WF_MOOD_ZH[api.state] || WF_MOOD_ZH[key] || String(api.state || '情绪轮换');
-                const expiryMs = Date.parse(api.expiry);
                 return {
                     state: key || 'mood',
                     label,
-                    remain: remainUntil(expiryMs),
+                    remain: Math.max(0, expiryMs - Date.now()),
                     expiryMs,
                     icon: 'mood',
                     iconState: 'mood'
                 };
             }
-            function mapWeekly(apiArchon) {
-                const remain = nextWeeklyResetMs();
-                let label = '周常轮换中';
-                if (apiArchon && (apiArchon.boss || apiArchon.faction)) {
-                    const boss = apiArchon.boss || apiArchon.faction || '';
-                    label = `执政官 · ${boss}`;
-                }
+
+            function buildLocalWorld(now = Date.now()) {
                 return {
-                    state: 'week',
-                    label,
-                    remain,
-                    expiryMs: Date.now() + remain,
-                    icon: 'week',
-                    iconState: 'week'
+                    rows: {
+                        cetus: localCetus(now),
+                        vallis: localVallis(now),
+                        cambion: localCambion(now),
+                        zariman: localZariman(now),
+                        duviri: localDuviri(now),
+                        bounty: localBounty(now)
+                    },
+                    rot: {
+                        steel: localSteelPath(now),
+                        bird3: localArchon(now),
+                        circuit: localCircuit(now),
+                        arb: wfArbView
+                    }
                 };
+            }
+
+            function normalizeProxyCycle(c, key) {
+                if (!c) return buildLocalWorld().rows[key];
+                const expiryMs = Number(c.expiryMs) || 0;
+                return {
+                    state: c.state || 'unknown',
+                    label: c.label || '—',
+                    remain: Number(c.remain) || Math.max(0, expiryMs - Date.now()),
+                    expiryMs,
+                    icon: c.icon || c.iconState || 'week',
+                    iconState: c.iconState || c.icon || 'week'
+                };
+            }
+
+            async function fetchWfProxyWorldstate(force) {
+                const bases = [];
+                if (location.protocol === 'http:' || location.protocol === 'https:') bases.push(location.origin);
+                bases.push('http://127.0.0.1:8898');
+                const seen = new Set();
+                let lastErr = null;
+                for (const base of bases) {
+                    if (!base || seen.has(base)) continue;
+                    seen.add(base);
+                    try {
+                        const ctrl = new AbortController();
+                        const to = setTimeout(() => ctrl.abort(), 9000);
+                        const res = await fetch(`${base}/api/wf/worldstate${force ? '?force=1' : ''}`, {
+                            signal: ctrl.signal,
+                            cache: 'no-store',
+                            headers: { Accept: 'application/json' }
+                        });
+                        clearTimeout(to);
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        const data = await res.json();
+                        if (data && data.ok && data.cycles) return data;
+                        lastErr = new Error('bad worldstate payload');
+                    } catch (e) {
+                        lastErr = e;
+                    }
+                }
+                throw lastErr || new Error('worldstate proxy unavailable');
+            }
+
+            async function fetchWfCommunityWorldstate() {
+                const ctrl = new AbortController();
+                const to = setTimeout(() => ctrl.abort(), 9000);
+                try {
+                    const res = await fetch(WF_API, {
+                        signal: ctrl.signal,
+                        cache: 'no-store',
+                        headers: { Accept: 'application/json' }
+                    });
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return await res.json();
+                } finally {
+                    clearTimeout(to);
+                }
             }
 
             function renderWfWorld(rows, srcKind) {
                 const list = document.getElementById('wf-world-list');
-                const src = document.getElementById('wf-world-src');
-                const upd = document.getElementById('wf-world-updated');
                 if (!list) return;
-                const defs = [
-                    { key: 'cetus', name: '希图斯 / 地球平原' },
-                    { key: 'vallis', name: '福尔图娜 / 奥布山谷' },
-                    { key: 'cambion', name: '火卫二 / 魔胎之境' },
-                    { key: 'zariman', name: '扎里曼' },
-                    { key: 'duviri', name: '双衍王境' },
-                    { key: 'weekly', name: '卡尔驻军 · 周常' }
-                ];
-                list.innerHTML = defs.map((d, i) => {
+                list.innerHTML = WF_ROW_DEFS.map((d, i) => {
                     const row = rows[d.key] || { label: '—', remain: 0, icon: 'week', iconState: 'week' };
                     const icon = WF_ICONS[row.icon] || WF_ICONS.week;
-                    return `<div class="wf-row" style="--i:${i}">
+                    const urgent = row.remain > 0 && row.remain < 120000 ? ' urgent' : '';
+                    return `<div class="wf-row state-${row.iconState || 'week'}" style="--i:${i}" title="${d.full}">
                         <div class="wf-icon state-${row.iconState || 'week'}">${icon}</div>
                         <div class="wf-meta">
                             <div class="wf-name">${d.name}</div>
-                            <div class="wf-state" title="${row.label}">${row.label}</div>
+                            <div class="wf-state" title="${escapeHtml(row.label)}">${escapeHtml(row.label)}</div>
                         </div>
-                        <div class="wf-time">${formatRemain(row.remain)}</div>
+                        <div class="wf-time${urgent}">${formatWfTime(row.remain)}</div>
                     </div>`;
                 }).join('');
-                if (src) {
-                    src.className = srcKind === 'live' ? 'src-live' : (srcKind === 'local' ? 'src-local' : 'src-err');
-                    src.textContent = srcKind === 'live' ? '实时 · warframestat' : (srcKind === 'local' ? '本地推算 · 部分在线' : '状态异常');
+                const mini = document.getElementById('wf-world-mini');
+                if (mini) {
+                    const c = rows.cetus || {};
+                    mini.textContent = c.label ? `${c.label} ${formatWfTime(c.remain)}` : '';
                 }
-                if (upd) {
-                    const n = new Date();
-                    upd.textContent = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')} 更新`;
+                const srcEl = document.getElementById('wf-world-src');
+                if (srcEl) {
+                    srcEl.className = srcKind === 'local' ? 'src-local' : 'src-live';
+                    srcEl.textContent = srcKind === 'official'
+                        ? '官方 worldstate'
+                        : (srcKind === 'live' ? '实时 · warframestat' : '本地精确推算');
+                }
+                updateWfUpdated();
+            }
+
+            function renderWfRotations(rot) {
+                if (!rot) return;
+                const reset = formatWfTime(nextWeeklyResetMs());
+                const resetEl = document.getElementById('wf-weekly-reset');
+                if (resetEl) resetEl.textContent = `重置 ${reset}`;
+                const steel = rot.steel || {};
+                const steelValue = document.getElementById('wf-steel-value');
+                if (steelValue) {
+                    steelValue.textContent = steel.reward || '—';
+                    steelValue.title = steel.reward || '';
+                }
+                const steelTime = document.getElementById('wf-steel-time');
+                if (steelTime) steelTime.textContent = '本周';
+                const bird = rot.bird3 || {};
+                const birdValue = document.getElementById('wf-bird3-value');
+                if (birdValue) {
+                    birdValue.textContent = bird.shard || '—';
+                    birdValue.title = bird.label || '';
+                }
+                const birdTime = document.getElementById('wf-bird3-time');
+                if (birdTime) birdTime.textContent = '本周';
+                const circuit = rot.circuit || {};
+                const circuitValue = document.getElementById('wf-circuit-value');
+                if (circuitValue) {
+                    circuitValue.textContent = circuit.week ? `第${circuit.week}周` : '—';
+                    circuitValue.title = circuitItems(circuit).join(' / ');
+                }
+                const circuitTime = document.getElementById('wf-circuit-time');
+                if (circuitTime) circuitTime.textContent = '本周';
+                const arb = rot.arb;
+                const arbValue = document.getElementById('wf-arb-value');
+                const arbTime = document.getElementById('wf-arb-time');
+                if (arbValue) {
+                    if (!arb) {
+                        arbValue.textContent = '加载…';
+                        arbValue.title = '';
+                    } else if (arb.current) {
+                        arbValue.textContent = `${arb.current['任务'] || '仲裁'} · ${arb.current['节点'] || ''}`;
+                        arbValue.title = `${arb.current['星球'] || ''} ${arb.current['节点'] || ''}`;
+                    } else {
+                        arbValue.textContent = '暂无';
+                        arbValue.title = '';
+                    }
+                }
+                if (arbTime) {
+                    arbTime.textContent = arb && arb.current ? formatArbTime(arb.current._time) : (arb ? '--' : '点击加载');
                 }
             }
 
-            let wfTimer = null;
-            let wfTickTimer = null;
-            let wfCacheRows = null;
-            let wfSrcKind = 'local';
+            function updateWfUpdated() {
+                const el = document.getElementById('wf-world-updated');
+                if (!el) return;
+                const n = new Date();
+                el.textContent = `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')} 更新`;
+            }
 
-            function buildLocalRows(partial) {
-                return {
-                    cetus: partial?.cetus || localCetus(),
-                    vallis: partial?.vallis || localVallis(),
-                    cambion: partial?.cambion || localCambion(),
-                    zariman: partial?.zariman || { state:'unknown', label:'等待联网', remain:0, icon:'corpus', iconState:'week' },
-                    duviri: partial?.duviri || { state:'unknown', label:'等待联网', remain:0, icon:'mood', iconState:'mood' },
-                    weekly: partial?.weekly || mapWeekly(null)
-                };
+            function tickWfWorldRemain() {
+                if (!wfRows) return;
+                const now = Date.now();
+                Object.keys(wfRows).forEach(k => {
+                    const row = wfRows[k];
+                    if (row && row.expiryMs) row.remain = Math.max(0, row.expiryMs - now);
+                });
+                const list = document.getElementById('wf-world-list');
+                if (list) {
+                    const nodes = list.querySelectorAll('.wf-row');
+                    WF_ROW_DEFS.forEach((d, i) => {
+                        const row = wfRows[d.key];
+                        const timeEl = nodes[i]?.querySelector('.wf-time');
+                        if (!row || !timeEl) return;
+                        timeEl.textContent = formatWfTime(row.remain);
+                        timeEl.classList.toggle('urgent', row.remain > 0 && row.remain < 120000);
+                    });
+                }
+                const mini = document.getElementById('wf-world-mini');
+                if (mini && wfRows.cetus) mini.textContent = `${wfRows.cetus.label} ${formatWfTime(wfRows.cetus.remain)}`;
+                const resetEl = document.getElementById('wf-weekly-reset');
+                if (resetEl) resetEl.textContent = `重置 ${formatWfTime(nextWeeklyResetMs())}`;
+                const d = new Date(now);
+                const hourKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${d.getHours()}`;
+                if (hourKey !== wfArbHourKey) {
+                    wfArbHourKey = hourKey;
+                    updateArbitrationCard();
+                }
             }
 
             async function refreshWfWorld(manual) {
                 const btn = document.getElementById('wf-world-refresh');
                 if (btn && manual) btn.classList.add('spin');
+                const now = Date.now();
+                let rows = null, rot = null, src = 'local';
                 try {
-                    const ctrl = new AbortController();
-                    const to = setTimeout(() => ctrl.abort(), 10000);
-                    const res = await fetch(WF_API, {
-                        signal: ctrl.signal,
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    clearTimeout(to);
-                    if (!res.ok) throw new Error('HTTP ' + res.status);
-                    const data = await res.json();
-                    const rows = {
-                        cetus: mapCetus(data.cetusCycle),
-                        vallis: mapVallis(data.vallisCycle),
-                        cambion: mapCambion(data.cambionCycle),
-                        zariman: mapZariman(data.zarimanCycle),
-                        duviri: mapDuviri(data.duviriCycle),
-                        weekly: mapWeekly(data.archonHunt)
+                    const p = await fetchWfProxyWorldstate(manual);
+                    rows = {
+                        cetus: normalizeProxyCycle(p.cycles.cetus, 'cetus'),
+                        vallis: normalizeProxyCycle(p.cycles.vallis, 'vallis'),
+                        cambion: normalizeProxyCycle(p.cycles.cambion, 'cambion'),
+                        zariman: normalizeProxyCycle(p.cycles.zariman, 'zariman'),
+                        duviri: normalizeProxyCycle(p.cycles.duviri, 'duviri'),
+                        bounty: normalizeProxyCycle(p.bounty, 'bounty')
                     };
-                    // 卡尔驻军：优先从事件里找 Kahl / Break Narmer
+                    rot = {
+                        steel: p.steelPath || localSteelPath(now),
+                        bird3: p.archon || localArchon(now),
+                        circuit: p.circuit || localCircuit(now),
+                        arb: wfArbView
+                    };
+                    src = 'official';
+                } catch (e) {
                     try {
-                        const events = Array.isArray(data.events) ? data.events : [];
-                        const kahl = events.find(ev => /kahl|narmer|卡尔|驻军/i.test(JSON.stringify(ev?.description || '') + (ev?.tag || '') + (ev?.id || '')));
-                        if (kahl) {
-                            rows.weekly.label = kahl.description || kahl.tag || rows.weekly.label;
-                            if (kahl.expiry) rows.weekly.remain = remainUntil(kahl.expiry);
+                        const api = await fetchWfCommunityWorldstate();
+                        rows = {
+                            cetus: mapWfApiCetus(api.cetusCycle),
+                            vallis: mapWfApiVallis(api.vallisCycle),
+                            cambion: mapWfApiCambion(api.cambionCycle),
+                            zariman: mapWfApiZariman(api.zarimanCycle),
+                            duviri: mapWfApiDuviri(api.duviriCycle),
+                            bounty: localBounty(now)
+                        };
+                        rot = {
+                            steel: localSteelPath(now),
+                            bird3: localArchon(now),
+                            circuit: localCircuit(now),
+                            arb: wfArbView
+                        };
+                        src = 'live';
+                    } catch (e2) {
+                        const local = buildLocalWorld(now);
+                        rows = local.rows;
+                        rot = local.rot;
+                        src = 'local';
+                    }
+                }
+                wfRows = rows;
+                wfRot = rot;
+                wfSrcKind = src;
+                renderWfWorld(rows, src);
+                renderWfRotations(rot);
+                if (btn) btn.classList.remove('spin');
+            }
+
+            function parseArbitrationCsv(text) {
+                const lines = String(text || '').split(/\r?\n/).filter(l => l.trim() !== '');
+                if (lines.length < 2) return [];
+                const header = lines[0].split(',').map(h => h.trim());
+                const rows = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const parts = lines[i].split(',');
+                    if (parts.length < header.length) continue;
+                    const row = {};
+                    header.forEach((h, idx) => { row[h] = (parts[idx] || '').trim(); });
+                    const m = String(row['时间'] || '').match(/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s+(\d{1,2}):(\d{2})$/);
+                    if (!m) continue;
+                    row._time = new Date(
+                        parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10),
+                        parseInt(m[4], 10), parseInt(m[5], 10), 0, 0
+                    );
+                    row._bonus = parseFloat(row['加成']) || 0;
+                    rows.push(row);
+                }
+                return rows;
+            }
+
+            function getArbitrationView(rows, now = new Date()) {
+                const year = now.getFullYear();
+                const month = now.getMonth();
+                const date = now.getDate();
+                const hour = now.getHours();
+                const start = new Date(year, month, date, hour, 0, 0);
+                const end = new Date(year, month, date + 1, 23, 0, 0);
+                const todayEnd = new Date(year, month, date, 23, 59, 59);
+                const allowedTasks = ['拦截', '防御', '镜像防御'];
+                const today = [];
+                const tomorrow = [];
+                for (const r of rows) {
+                    const isHigh = r['效率'] === 'S' || r['效率'] === 'A';
+                    const hasBonus = r._bonus > 0;
+                    if (!isHigh && !hasBonus) continue;
+                    if (!allowedTasks.includes(r['任务'])) continue;
+                    if (r._time < start || r._time > end) continue;
+                    if (r._time <= todayEnd) today.push(r);
+                    else tomorrow.push(r);
+                }
+                let current = null;
+                let currentTime = -Infinity;
+                for (const r of rows) {
+                    const t = r._time.getTime();
+                    if (t <= now.getTime() && t > currentTime) {
+                        currentTime = t;
+                        current = r;
+                    }
+                }
+                return { today, tomorrow, current };
+            }
+
+            function ensureArbitrationData() {
+                if (wfArbRows) return Promise.resolve(wfArbRows);
+                if (wfArbLoading) return wfArbLoading;
+                wfArbLoading = new Promise(resolve => {
+                    const done = () => {
+                        try { wfArbRows = parseArbitrationCsv(window.ARBITRATION_CSV_TEXT || ''); }
+                        catch (e) { wfArbRows = []; }
+                        wfArbLoading = null;
+                        updateArbitrationCard(true);
+                        resolve(wfArbRows);
+                    };
+                    if (window.ARBITRATION_CSV_TEXT) { done(); return; }
+                    const s = document.createElement('script');
+                    s.src = resolveWfAssetUrl('wf-arbitration.js');
+                    s.onload = done;
+                    s.onerror = () => {
+                        wfArbRows = [];
+                        wfArbLoading = null;
+                        updateArbitrationCard(true);
+                        resolve([]);
+                    };
+                    document.body.appendChild(s);
+                });
+                return wfArbLoading;
+            }
+
+            function updateArbitrationCard(force) {
+                if (!wfRows) return;
+                if (!wfArbRows) {
+                    if (force) ensureArbitrationData();
+                    const v = document.getElementById('wf-arb-value');
+                    if (v && !wfArbLoading) v.textContent = '加载…';
+                    return;
+                }
+                const now = new Date();
+                const hourKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}-${now.getHours()}`;
+                if (!force && hourKey === wfArbHourKey && wfArbView) return;
+                wfArbHourKey = hourKey;
+                wfArbView = getArbitrationView(wfArbRows, now);
+                if (wfRot) {
+                    wfRot.arb = wfArbView;
+                    renderWfRotations(wfRot);
+                }
+                const pop = document.getElementById('wf-pop');
+                if (wfPopType === 'arb' && pop && !pop.hidden) showWfPop('arb');
+            }
+
+            function popRowHtml(row, isCurrent) {
+                if (!row) return '';
+                const eff = row['效率'];
+                const bonus = row._bonus > 0;
+                const baseTag = eff === 'S' ? 'S' : (eff === 'A' ? 'A' : (bonus ? '加成' : '—'));
+                const tag = isCurrent && baseTag === '—' ? '当前' : baseTag;
+                const cls = eff === 'S' ? 's' : (eff === 'A' ? 'a' : (bonus ? 'bonus' : ''));
+                return `<div class="wf-pop-row${isCurrent ? ' current' : ''}">
+                    <span class="tag ${cls}">${tag}</span>
+                    <span class="time">${formatArbTime(row._time)}</span>
+                    <span class="main">${escapeHtml(row['任务'] || '')} · ${escapeHtml(row['节点'] || '')} <span style="color:var(--ink-mute)">${escapeHtml(row['星球'] || '')}</span></span>
+                </div>`;
+            }
+
+            function showWfPop(type) {
+                const pop = document.getElementById('wf-pop');
+                const titleEl = document.getElementById('wf-pop-title');
+                const bodyEl = document.getElementById('wf-pop-body');
+                if (!pop || !titleEl || !bodyEl) return;
+                wfPopType = type;
+                let title = '详情';
+                let body = '';
+                if (type === 'steel') {
+                    const cur = (wfRot && wfRot.steel) || localSteelPath();
+                    title = '钢铁之路 · 本周奖励';
+                    body = WF_STEEL_ROTATION.map((r, i) =>
+                        `<div class="wf-pop-row${i === cur.index ? ' current' : ''}"><span class="tag">${i + 1}</span><span class="main">${escapeHtml(r)}</span></div>`
+                    ).join('');
+                } else if (type === 'bird3') {
+                    const cur = (wfRot && wfRot.bird3) || localArchon();
+                    title = '鸟三 · 本周执刑官';
+                    body = WF_ARCHON_ROTATION.map(r =>
+                        `<div class="wf-pop-row${r.shard === cur.shard ? ' current' : ''}"><span class="tag">${r.label}</span><span class="main">${r.shard}执刑官源力石</span></div>`
+                    ).join('');
+                } else if (type === 'circuit') {
+                    const cur = (wfRot && wfRot.circuit) || localCircuit();
+                    const items = circuitItems(cur);
+                    title = `无尽回廊 · 第${cur.week || '?'}周`;
+                    body = items.map(name =>
+                        `<div class="wf-pop-row"><span class="tag">灵化</span><span class="main">${escapeHtml(name)}</span></div>`
+                    ).join('') || '<div class="wf-pop-empty">暂无轮换数据</div>';
+                } else if (type === 'arb') {
+                    title = '仲裁 · 推荐';
+                    if (!wfArbView) {
+                        body = '<div class="wf-pop-empty">正在加载仲裁表…</div>';
+                        ensureArbitrationData();
+                    } else {
+                        const seen = new Set();
+                        let html = '';
+                        if (wfArbView.current) {
+                            html += popRowHtml(wfArbView.current, true);
+                            seen.add(`${wfArbView.current._time.getTime()}|${wfArbView.current['节点'] || ''}`);
                         }
-                    } catch (e) {}
-                    wfCacheRows = rows;
-                    wfSrcKind = 'live';
-                    renderWfWorld(rows, 'live');
-                } catch (err) {
-                    console.warn('WF worldstate fetch failed', err);
-                    const rows = buildLocalRows(wfCacheRows);
-                    // 刷新本地推算的开放世界剩余时间
-                    rows.cetus = localCetus();
-                    rows.vallis = localVallis();
-                    rows.cambion = localCambion();
-                    rows.weekly = mapWeekly(null);
-                    if (wfCacheRows?.zariman?.state && wfCacheRows.zariman.state !== 'unknown') rows.zariman = wfCacheRows.zariman;
-                    if (wfCacheRows?.duviri?.state && wfCacheRows.duviri.state !== 'unknown') rows.duviri = wfCacheRows.duviri;
-                    wfCacheRows = rows;
-                    wfSrcKind = wfSrcKind === 'live' ? 'local' : 'local';
-                    renderWfWorld(rows, 'local');
-                } finally {
-                    if (btn) btn.classList.remove('spin');
+                        const addList = (label, list) => {
+                            const filtered = list.filter(r => !seen.has(`${r._time.getTime()}|${r['节点'] || ''}`));
+                            if (!filtered.length) return '';
+                            return `<div class="wf-pop-row" style="background:transparent;color:var(--ink-mute)"><span class="tag">${label}</span><span class="main">S / A 推荐</span></div>`
+                                + filtered.slice(0, 12).map(r => popRowHtml(r, false)).join('');
+                        };
+                        html += addList('今日', wfArbView.today);
+                        html += addList('明日', wfArbView.tomorrow);
+                        body = html || '<div class="wf-pop-empty">当前暂无推荐</div>';
+                    }
+                }
+                titleEl.textContent = title;
+                bodyEl.innerHTML = body;
+                pop.hidden = false;
+                document.querySelectorAll('#wf-world-dock .wf-rot-item').forEach(el => {
+                    el.classList.toggle('active', el.getAttribute('data-pop') === type);
+                });
+            }
+
+            function hideWfPop() {
+                const pop = document.getElementById('wf-pop');
+                if (pop) pop.hidden = true;
+                wfPopType = '';
+                document.querySelectorAll('#wf-world-dock .wf-rot-item').forEach(el => el.classList.remove('active'));
+            }
+
+            function setupWfPopovers() {
+                document.querySelectorAll('#wf-world-dock .wf-rot-item').forEach(item => {
+                    const type = item.getAttribute('data-pop');
+                    item.addEventListener('mouseenter', () => showWfPop(type));
+                    item.addEventListener('focus', () => showWfPop(type));
+                    item.addEventListener('click', e => {
+                        e.stopPropagation();
+                        const pop = document.getElementById('wf-pop');
+                        if (wfPopType === type && pop && !pop.hidden) hideWfPop();
+                        else showWfPop(type);
+                    });
+                    item.addEventListener('keydown', e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            showWfPop(type);
+                        }
+                    });
+                });
+                document.getElementById('wf-pop-close')?.addEventListener('click', e => {
+                    e.stopPropagation();
+                    hideWfPop();
+                });
+                const dock = document.getElementById('wf-world-dock');
+                dock?.addEventListener('mouseleave', () => {
+                    setTimeout(() => { if (dock && !dock.matches(':hover')) hideWfPop(); }, 180);
+                });
+                document.addEventListener('pointerdown', e => {
+                    if (dock && !dock.contains(e.target)) hideWfPop();
+                });
+            }
+
+            function setWorldCollapsed(collapsed, persist) {
+                const dock = document.getElementById('wf-world-dock');
+                const btn = document.getElementById('wf-world-collapse');
+                if (!dock) return;
+                dock.classList.toggle('collapsed', collapsed);
+                document.body.classList.toggle('wf-world-collapsed', collapsed);
+                if (btn) {
+                    btn.textContent = collapsed ? '＋' : '−';
+                    btn.title = collapsed ? '展开' : '收起';
+                    btn.setAttribute('aria-label', collapsed ? '展开' : '收起');
+                    btn.setAttribute('aria-expanded', String(!collapsed));
+                }
+                if (!collapsed) hideWfPop();
+                if (persist) {
+                    try { localStorage.setItem(WF_WORLD_COLLAPSE_KEY, collapsed ? '1' : '0'); } catch (e) {}
                 }
             }
 
-            function tickWfWorldRemain() {
-                if (!wfCacheRows) return;
-                if (wfSrcKind === 'live') {
-                    Object.keys(wfCacheRows).forEach(k => {
-                        const row = wfCacheRows[k];
-                        if (!row) return;
-                        if (k === 'weekly') row.remain = nextWeeklyResetMs();
-                        else if (row.expiryMs) row.remain = remainUntil(row.expiryMs);
-                    });
-                } else {
-                    wfCacheRows.cetus = localCetus();
-                    wfCacheRows.vallis = localVallis();
-                    wfCacheRows.cambion = localCambion();
-                    wfCacheRows.weekly = { ...(wfCacheRows.weekly || {}), ...mapWeekly(null), label: (wfCacheRows.weekly && wfCacheRows.weekly.label) || '周常轮换中' };
-                    wfCacheRows.weekly.remain = nextWeeklyResetMs();
+            function setupWorldCollapse() {
+                const btn = document.getElementById('wf-world-collapse');
+                let saved = null;
+                try { saved = localStorage.getItem(WF_WORLD_COLLAPSE_KEY); } catch (e) {}
+                if (saved === '1') {
+                    setWorldCollapsed(true, false);
                 }
-                renderWfWorld(wfCacheRows, wfSrcKind);
+                btn?.addEventListener('click', e => {
+                    e.stopPropagation();
+                    const dock = document.getElementById('wf-world-dock');
+                    if (!dock) return;
+                    setWorldCollapsed(!dock.classList.contains('collapsed'), true);
+                });
             }
 
             function startWfWorld() {
                 const list = document.getElementById('wf-world-list');
                 if (!list) return;
-                document.getElementById('wf-world-refresh')?.addEventListener('click', (e) => {
+                document.getElementById('wf-world-refresh')?.addEventListener('click', e => {
                     e.stopPropagation();
                     refreshWfWorld(true);
                 });
-                wfCacheRows = buildLocalRows();
-                renderWfWorld(wfCacheRows, 'local');
+                setupWorldCollapse();
+                setupWfPopovers();
+                const local = buildLocalWorld();
+                wfRows = local.rows;
+                wfRot = local.rot;
+                renderWfWorld(wfRows, 'local');
+                renderWfRotations(wfRot);
                 refreshWfWorld(false);
+                setTimeout(() => ensureArbitrationData(), 1200);
                 if (wfTimer) clearInterval(wfTimer);
                 if (wfTickTimer) clearInterval(wfTickTimer);
                 wfTimer = setInterval(() => refreshWfWorld(false), 60 * 1000);
                 wfTickTimer = setInterval(tickWfWorldRemain, 1000);
+            }
+
+
+            // ==================== 左下角 Warframe 市场行情 ====================
+            const WFM_PROXY_URL = 'http://127.0.0.1:8898';
+            const WFM_LAST_KEY = 'wf_market_dock_last_slug';
+            const WFM_COLLAPSE_KEY = 'wf_market_dock_collapsed';
+            const WFM_ORDER_TTL = 25 * 1000;
+            let wfmProxyBase = '';
+            const wfmOrdersCache = new Map();
+
+            function wfmFetchJson(url, timeoutMs) {
+                const ctrl = new AbortController();
+                const to = setTimeout(() => ctrl.abort(), timeoutMs || 8000);
+                return fetch(url, {
+                    signal: ctrl.signal,
+                    cache: 'no-store',
+                    headers: { 'Accept': 'application/json' }
+                }).then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                }).finally(() => clearTimeout(to));
+            }
+
+            async function wfmGetOrders(slug, force) {
+                const hit = wfmOrdersCache.get(slug);
+                if (!force && hit && Date.now() - hit.ts < WFM_ORDER_TTL) return hit.data;
+                const bases = [];
+                if (wfmProxyBase) bases.push(wfmProxyBase);
+                if (location.protocol === 'http:' || location.protocol === 'https:') bases.push(location.origin);
+                bases.push(WFM_PROXY_URL);
+                const seen = new Set();
+                let lastErr = null;
+                for (const base of bases) {
+                    if (!base || seen.has(base)) continue;
+                    seen.add(base);
+                    try {
+                        const data = await wfmFetchJson(`${base}/api/wf/orders?slug=${encodeURIComponent(slug)}${force ? '&force=1' : ''}`, 9000);
+                        if (data && data.ok && Array.isArray(data.sells) && Array.isArray(data.buys)) {
+                            wfmProxyBase = base;
+                            wfmOrdersCache.set(slug, { ts: Date.now(), data });
+                            if (wfmOrdersCache.size > 40) {
+                                wfmOrdersCache.delete(wfmOrdersCache.keys().next().value);
+                            }
+                            return data;
+                        }
+                        lastErr = new Error('invalid proxy payload');
+                    } catch (err) {
+                        lastErr = err;
+                    }
+                }
+                throw lastErr || new Error('proxy unavailable');
+            }
+
+            function wfmFormatAge(value) {
+                if (!value) return '';
+                const t = Date.parse(value);
+                if (!Number.isFinite(t)) return '';
+                const diff = Math.max(0, Date.now() - t);
+                if (diff < 60 * 1000) return '刚刚';
+                if (diff < 60 * 60 * 1000) return Math.floor(diff / 60000) + ' 分钟前';
+                if (diff < 24 * 60 * 60 * 1000) return Math.floor(diff / 3600000) + ' 小时前';
+                return Math.floor(diff / 86400000) + ' 天前';
+            }
+
+            function wfmExtractSlug(text) {
+                const q = String(text || '').trim();
+                const m = q.match(/warframe\.market\/(?:[a-z]{2}(?:-[a-z]+)?\/)?items\/([a-z0-9_]+)/i);
+                if (m) return m[1].toLowerCase();
+                if (/^[a-z0-9]+(?:_[a-z0-9]+)+$/i.test(q)) return q.toLowerCase();
+                return '';
+            }
+
+            function wfmFallbackCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                ta.remove();
+            }
+
+            function startWfMarket() {
+                const dock = document.getElementById('wf-market-dock');
+                if (!dock) return;
+                const byId = id => document.getElementById(id);
+                const searchEl = byId('wfm-search');
+                const clearEl = byId('wfm-search-clear');
+                const resultsEl = byId('wfm-results');
+                const ordersEl = byId('wfm-orders');
+                const onlineEl = byId('wfm-online-only');
+                const refreshBtn = byId('wfm-refresh');
+                const collapseBtn = byId('wfm-collapse');
+                const srcEl = byId('wfm-src');
+                const updatedEl = byId('wfm-updated');
+
+                let current = null;
+                let orders = null;
+                let tab = 'sell';
+                let onlineOnly = true;
+                let results = [];
+                let resultIndex = -1;
+                let viewOrders = [];
+                let loadSeq = 0;
+                let searchTimer = null;
+
+                function setCollapsed(collapsed, persist) {
+                    dock.classList.toggle('collapsed', collapsed);
+                    if (collapseBtn) {
+                        collapseBtn.textContent = collapsed ? '＋' : '−';
+                        collapseBtn.title = collapsed ? '展开' : '收起';
+                        collapseBtn.setAttribute('aria-label', collapsed ? '展开' : '收起');
+                        collapseBtn.setAttribute('aria-expanded', String(!collapsed));
+                    }
+                    if (persist) {
+                        try { localStorage.setItem(WFM_COLLAPSE_KEY, collapsed ? '1' : '0'); } catch (e) {}
+                    }
+                }
+
+                let savedCollapse = null;
+                try { savedCollapse = localStorage.getItem(WFM_COLLAPSE_KEY); } catch (e) {}
+                if (savedCollapse === '1' || (savedCollapse === null && window.matchMedia('(max-width: 1000px)').matches)) {
+                    setCollapsed(true, false);
+                }
+
+                function hideResults() {
+                    results = [];
+                    resultIndex = -1;
+                    resultsEl.classList.remove('show');
+                    resultsEl.innerHTML = '';
+                }
+
+                function renderResults() {
+                    if (!results.length) { hideResults(); return; }
+                    resultsEl.innerHTML = results.map((item, i) => {
+                        const label = escapeHtml(item.label || item.en || item.slug || '');
+                        const meta = item.meta ? `<span class="meta">${escapeHtml(item.meta)}</span>` : '';
+                        return `<div class="wfm-result${i === resultIndex ? ' active' : ''}" data-i="${i}" role="option">
+                            <span class="name">${label}</span>${meta}
+                        </div>`;
+                    }).join('');
+                    resultsEl.classList.add('show');
+                }
+
+                function updateClear() {
+                    clearEl.classList.toggle('show', !!searchEl.value.trim());
+                }
+
+                function setItemHead(item) {
+                    byId('wfm-item-head').hidden = false;
+                    byId('wfm-stats').hidden = false;
+                    byId('wfm-tabs').hidden = false;
+                    byId('wfm-open-item').hidden = false;
+                    byId('wfm-item-zh').textContent = item.zh || item.en || item.slug;
+                    byId('wfm-item-en').textContent = (item.zh && item.en && item.zh !== item.en)
+                        ? item.en
+                        : String(item.slug || '').replace(/_/g, ' ');
+                    byId('wfm-open-item').href = buildWfMarketUrl(item.slug, true);
+                }
+
+                function applySelected(item, load) {
+                    if (!item || !item.slug) return;
+                    current = item;
+                    searchEl.value = item.label || item.en || item.zh || item.slug;
+                    updateClear();
+                    setItemHead(item);
+                    hideResults();
+                    try { localStorage.setItem(WFM_LAST_KEY, item.slug); } catch (e) {}
+                    if (load !== false) loadOrders(false);
+                }
+
+                function updateUpdated() {
+                    const n = new Date();
+                    if (updatedEl) updatedEl.textContent = `${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')} 更新`;
+                }
+
+                function renderProxyError() {
+                    ordersEl.innerHTML = `<div class="wfm-empty wfm-error">价格代理未启动<span>运行 <code>start-wf-market.cmd</code> 后点重试<br>或执行 <code>node wf-market-proxy.mjs</code></span><button type="button" class="wfm-retry">重试</button></div>`;
+                }
+
+                async function loadOrders(force) {
+                    if (!current) return;
+                    const seq = ++loadSeq;
+                    ordersEl.innerHTML = '<div class="wfm-empty">拉取市场挂单…</div>';
+                    byId('wfm-min-sell').textContent = '—';
+                    byId('wfm-max-buy').textContent = '—';
+                    byId('wfm-counts').textContent = '—';
+                    if (srcEl) { srcEl.textContent = '拉取中…'; srcEl.className = ''; }
+                    if (refreshBtn) refreshBtn.classList.add('spin');
+                    try {
+                        const data = await wfmGetOrders(current.slug, force);
+                        if (seq !== loadSeq) return;
+                        orders = data;
+                        renderOrders();
+                        if (srcEl) { srcEl.textContent = '实时 · 本机代理'; srcEl.className = 'src-live'; }
+                    } catch (err) {
+                        if (seq !== loadSeq) return;
+                        orders = null;
+                        renderProxyError();
+                        if (srcEl) { srcEl.textContent = '价格代理未启动'; srcEl.className = 'src-err'; }
+                    } finally {
+                        if (refreshBtn) refreshBtn.classList.remove('spin');
+                        if (seq === loadSeq) updateUpdated();
+                    }
+                }
+
+                function renderOrders() {
+                    if (!orders) return;
+                    const stats = orders.stats || {};
+                    const minSell = onlineOnly ? stats.minSellOnline : stats.minSell;
+                    const maxBuy = onlineOnly ? stats.maxBuyOnline : stats.maxBuy;
+                    const sellCount = onlineOnly ? stats.sellCountOnline : stats.sellCount;
+                    const buyCount = onlineOnly ? stats.buyCountOnline : stats.buyCount;
+                    byId('wfm-min-sell').textContent = minSell == null ? '—' : minSell + 'p';
+                    byId('wfm-max-buy').textContent = maxBuy == null ? '—' : maxBuy + 'p';
+                    byId('wfm-counts').textContent = `${sellCount || 0} / ${buyCount || 0}`;
+                    byId('wfm-sell-count').textContent = sellCount ? `(${sellCount})` : '';
+                    byId('wfm-buy-count').textContent = buyCount ? `(${buyCount})` : '';
+                    const source = (tab === 'sell' ? orders.sells : orders.buys) || [];
+                    const filtered = onlineOnly ? source.filter(o => o.status !== 'offline') : source;
+                    viewOrders = filtered.slice(0, 40);
+                    if (!viewOrders.length) {
+                        ordersEl.innerHTML = `<div class="wfm-empty">${tab === 'sell' ? '暂无出售挂单' : '暂无求购挂单'}${onlineOnly ? '（仅在线筛选下）' : ''}</div>`;
+                        return;
+                    }
+                    ordersEl.innerHTML = viewOrders.map((o, i) => {
+                        const status = o.status === 'ingame' ? 'ingame' : (o.status === 'online' ? 'online' : 'offline');
+                        const statusText = status === 'ingame' ? '游戏内' : (status === 'online' ? '在线' : '离线');
+                        const rank = o.rank > 0 ? `R${o.rank}` : '';
+                        const age = wfmFormatAge(o.updated);
+                        return `<div class="wfm-order ${tab}" data-i="${i}" title="点击复制私聊 · ${statusText}${age ? ' · ' + age : ''}">
+                            <span class="wfm-dot ${status}"></span>
+                            <span class="user">${escapeHtml(o.user || '?')}</span>
+                            <span class="qty">×${o.qty || 1}</span>
+                            <span class="rank">${rank}</span>
+                            <span class="price">${o.price}p</span>
+                        </div>`;
+                    }).join('');
+                }
+
+                function copyWhisper(order) {
+                    if (!current || !order) return;
+                    const itemName = current.en || current.zh || current.slug;
+                    const verb = tab === 'sell' ? 'buy' : 'sell';
+                    const msg = `/w ${order.user} Hi! I want to ${verb}: "${itemName}" for ${order.price} platinum. (warframe.market)`;
+                    const after = () => showToastMessage(`已复制私聊：${order.user} · ${order.price}p`);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(msg).then(after).catch(() => { wfmFallbackCopy(msg); after(); });
+                    } else {
+                        wfmFallbackCopy(msg);
+                        after();
+                    }
+                }
+
+                searchEl.addEventListener('input', () => {
+                    updateClear();
+                    const q = searchEl.value.trim();
+                    if (searchTimer) clearTimeout(searchTimer);
+                    if (!q) { hideResults(); return; }
+                    searchTimer = setTimeout(async () => {
+                        if (searchEl.value.trim() !== q) return;
+                        await ensureWfMarketItems();
+                        if (searchEl.value.trim() !== q) return;
+                        const directSlug = wfmExtractSlug(q);
+                        if (directSlug) {
+                            const found = (wfMarketItems || []).find(it => it.slug === directSlug);
+                            results = [found
+                                ? { slug: found.slug, en: found.en || found.slug, zh: found.zh || '', label: found.en || found.zh || found.slug, meta: found.zh || '' }
+                                : { slug: directSlug, en: directSlug.replace(/_/g, ' '), zh: '', label: directSlug.replace(/_/g, ' '), meta: 'market slug' }];
+                            resultIndex = 0;
+                            renderResults();
+                            return;
+                        }
+                        results = queryWfMarket(q, 8);
+                        resultIndex = results.length ? 0 : -1;
+                        renderResults();
+                    }, 140);
+                });
+
+                searchEl.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowDown') {
+                        if (!results.length) return;
+                        e.preventDefault();
+                        resultIndex = (resultIndex + 1) % results.length;
+                        renderResults();
+                    } else if (e.key === 'ArrowUp') {
+                        if (!results.length) return;
+                        e.preventDefault();
+                        resultIndex = (resultIndex - 1 + results.length) % results.length;
+                        renderResults();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (results.length) {
+                            applySelected(results[Math.max(0, resultIndex)]);
+                        } else {
+                            const slug = wfmExtractSlug(searchEl.value);
+                            if (slug) {
+                                const found = (wfMarketItems || []).find(it => it.slug === slug);
+                                applySelected(found
+                                    ? { slug: found.slug, en: found.en || found.slug, zh: found.zh || '', label: found.en || found.zh || found.slug }
+                                    : { slug, en: slug.replace(/_/g, ' '), zh: '', label: slug.replace(/_/g, ' ') });
+                            }
+                        }
+                    } else if (e.key === 'Escape') {
+                        hideResults();
+                        searchEl.blur();
+                    }
+                });
+
+                resultsEl.addEventListener('pointerdown', (e) => {
+                    const row = e.target.closest('.wfm-result');
+                    if (!row) return;
+                    e.preventDefault();
+                    const item = results[Number(row.dataset.i)];
+                    if (item) applySelected(item);
+                });
+
+                clearEl.addEventListener('click', () => {
+                    searchEl.value = '';
+                    updateClear();
+                    hideResults();
+                    searchEl.focus();
+                });
+
+                collapseBtn?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    setCollapsed(!dock.classList.contains('collapsed'), true);
+                });
+
+                refreshBtn?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (current) {
+                        wfmOrdersCache.delete(current.slug);
+                        loadOrders(true);
+                    } else {
+                        searchEl.focus();
+                    }
+                });
+
+                document.querySelectorAll('#wf-market-dock .wfm-tab').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        tab = btn.getAttribute('data-tab') === 'buy' ? 'buy' : 'sell';
+                        document.querySelectorAll('#wf-market-dock .wfm-tab').forEach(b => b.classList.toggle('active', b === btn));
+                        renderOrders();
+                    });
+                });
+
+                onlineEl?.addEventListener('change', () => {
+                    onlineOnly = !!onlineEl.checked;
+                    renderOrders();
+                });
+
+                ordersEl.addEventListener('click', (e) => {
+                    if (e.target.closest('.wfm-retry')) {
+                        e.stopPropagation();
+                        loadOrders(true);
+                        return;
+                    }
+                    const row = e.target.closest('.wfm-order');
+                    if (!row) return;
+                    const order = viewOrders[Number(row.dataset.i)];
+                    if (order) copyWhisper(order);
+                });
+
+                document.addEventListener('pointerdown', (e) => {
+                    if (!dock.contains(e.target)) hideResults();
+                });
+
+                if (prefs.showWfMarket !== false) {
+                    let lastSlug = '';
+                    try { lastSlug = localStorage.getItem(WFM_LAST_KEY) || ''; } catch (e) {}
+                    if (lastSlug) {
+                        ensureWfMarketItems().then(() => {
+                            const found = (wfMarketItems || []).find(it => it.slug === lastSlug);
+                            if (!found) return;
+                            applySelected({
+                                slug: found.slug,
+                                en: found.en || found.slug,
+                                zh: found.zh || '',
+                                label: found.zh || found.en || found.slug,
+                                meta: found.zh ? (found.en || '') : ''
+                            }, true);
+                        });
+                    }
+                }
             }
 
 
@@ -2846,21 +5121,21 @@
             // ========== 界面自定义设置 ==========
             const PREFS_KEY = 'nav_ui_prefs_v1';
             const THEME_PRESETS = {
-                inkpaper: { accent:'#9c3d32', celadon:'#355751', paper:'#e7e1d6', cream:'#f6f1e8', ink:'#1c1915', brass:'#b08948' },
+                inkpaper: { accent:'#0078d4', celadon:'#3a4f7a', paper:'#a6a6a6', cream:'#ffffff', ink:'#1f1f1f', brass:'#c19c00' },
                 night: { accent:'#c45c4a', celadon:'#6f8f86', paper:'#1b1a18', cream:'#262421', ink:'#efe8dc', brass:'#c2a36b' },
                 celadon: { accent:'#2f6f63', celadon:'#1f4f47', paper:'#e2ebe7', cream:'#f3f8f6', ink:'#17332e', brass:'#8aa39a' },
                 plain: { accent:'#333333', celadon:'#4a4a4a', paper:'#f2f2f2', cream:'#ffffff', ink:'#1a1a1a', brass:'#8a8a8a' }
             };
             const DEFAULT_PREFS = {
                 theme: 'inkpaper',
-                accent: '#9c3d32',
-                celadon: '#355751',
-                paper: '#e7e1d6',
-                cream: '#f6f1e8',
-                ink: '#1c1915',
-                brass: '#b08948',
+                accent: '#0078d4',
+                celadon: '#3a4f7a',
+                paper: '#a6a6a6',
+                cream: '#ffffff',
+                ink: '#1f1f1f',
+                brass: '#c19c00',
                 bgMode: 'paper',
-                bgSolid: '#e7e1d6',
+                bgSolid: '#a6a6a6',
                 bgImage: '',
                 bgVeil: 0.28,
                 grain: true,
@@ -2876,10 +5151,11 @@
                 showSites: true,
                 showBrand: true,
                 showWfWorld: true,
+                showWfMarket: true,
                 pageTitle: '导航',
                 brand: '',
                 defaultEngine: 'type-bing1',
-                cardPalette: 'celadon'
+                cardPalette: 'winpe'
             };
             let prefs = { ...DEFAULT_PREFS };
 
@@ -2904,10 +5180,11 @@
                 return '#' + [nr,ng,nb].map(v => v.toString(16).padStart(2,'0')).join('');
             }
             function buildCardPalette(mode, base) {
-                if (mode === 'warm') return ['#6b4a2e','#7d5938','#8f6842','#a1784f','#b08948'];
+                if (mode === 'winpe') return ['#ffffff','#f7f7f7','#ffffff','#f2f2f2','#fafafa'];
+                if (mode === 'warm') return ['#543823','#61432b','#6e4f34','#7b5b3d','#886746'];
                 if (mode === 'mono') return ['#2a2723','#35312c','#403b35','#4a453e','#554f47'];
-                if (mode === 'accent') return [0,0.08,0.16,0.24,0.32].map(t => shadeHex(base.accent, t));
-                return [0,0.08,0.16,0.24,0.32].map(t => mixHex(base.celadon, t));
+                if (mode === 'accent') return [0,0.06,0.12,0.18,0.24].map(t => shadeHex(base.accent, t));
+                return [0,0.05,0.10,0.15,0.20].map(t => mixHex(base.celadon, t));
             }
             function loadPrefs() {
                 try {
@@ -2934,10 +5211,13 @@
                     const el = document.getElementById(id);
                     if (el) el.value = prefs[key] ?? DEFAULT_PREFS[key];
                 });
+                const paletteEl = document.getElementById('pref-cardPalette');
+                if (paletteEl) paletteEl.value = prefs.theme === 'inkpaper' ? 'winpe' : prefs.cardPalette;
                 const checks = {
                     'pref-grain': 'grain', 'pref-showClock': 'showClock', 'pref-clock24h': 'clock24h',
                     'pref-showEngines': 'showEngines', 'pref-showSites': 'showSites',
-                    'pref-motion': 'motion', 'pref-showBrand': 'showBrand', 'pref-showWfWorld': 'showWfWorld'
+                    'pref-motion': 'motion', 'pref-showBrand': 'showBrand', 'pref-showWfWorld': 'showWfWorld',
+                    'pref-showWfMarket': 'showWfMarket'
                 };
                 Object.entries(checks).forEach(([id, key]) => {
                     const el = document.getElementById(id);
@@ -2995,6 +5275,8 @@
                 document.body.classList.toggle('hide-sites', !prefs.showSites);
                 document.body.classList.toggle('hide-brand', !prefs.showBrand || !prefs.brand);
                 document.body.classList.toggle('hide-wf-world', prefs.showWfWorld === false);
+                document.body.classList.toggle('hide-wf-market', prefs.showWfMarket === false);
+                document.body.classList.toggle('theme-winpe', prefs.theme === 'inkpaper');
                 document.body.classList.toggle('no-motion', !prefs.motion);
                 document.body.classList.toggle('no-grain', !prefs.grain);
                 document.body.classList.remove('density-compact', 'density-airy', 'density-normal');
@@ -3009,7 +5291,8 @@
                 const emojiEl = document.getElementById('emoji-copy');
                 if (emojiEl) emojiEl.textContent = prefs.clockEmoji || '😀';
 
-                COLOR_PALETTE = buildCardPalette(prefs.cardPalette, { accent, celadon });
+                const effectivePalette = prefs.theme === 'inkpaper' ? 'winpe' : prefs.cardPalette;
+                COLOR_PALETTE = buildCardPalette(effectivePalette, { accent, celadon });
                 if (!options.skipRender) {
                     if (typeof renderBookmarks === 'function') renderBookmarks();
                     if (typeof renderShortcutsInline === 'function') renderShortcutsInline();
@@ -3098,7 +5381,7 @@
                     setAndApply('defaultEngine', e.target.value, { applyEngine: true });
                     showToastMessage('默认引擎已更新');
                 });
-                ['grain','showClock','clock24h','showEngines','showSites','motion','showBrand','showWfWorld'].forEach(key => {
+                ['grain','showClock','clock24h','showEngines','showSites','motion','showBrand','showWfWorld','showWfMarket'].forEach(key => {
                     document.getElementById('pref-' + key)?.addEventListener('change', (e) => setAndApply(key, e.target.checked));
                 });
                 document.getElementById('settings-reset')?.addEventListener('click', () => {
@@ -3236,6 +5519,19 @@
                 });
             }
             const dynamicContainer = document.getElementById('dynamic-bookmarks');
+            function getBookmarkSite(url) {
+                try {
+                    const u = new URL(url);
+                    const httpish = u.protocol === 'http:' || u.protocol === 'https:';
+                    return {
+                        domain: u.hostname.replace(/^www\./, ''),
+                        favicon: httpish ? `${u.origin}/favicon.ico` : ''
+                    };
+                } catch (e) {
+                    return { domain: '', favicon: '' };
+                }
+            }
+
             function renderBookmarks() {
                 if(!dynamicContainer) return;
                 dynamicContainer.innerHTML = '';
@@ -3253,12 +5549,45 @@
                     link.className = 'box2';
                     if (bookmark.special) link.classList.add('gold-border');
                     link.style.backgroundColor = bgColor;
-                    link.style.borderColor = bgColor;
+
+                    const site = getBookmarkSite(bookmark.url);
+                    link.title = [bookmark.name, site.domain].filter(Boolean).join(' · ');
+                    const iconWrap = document.createElement('span');
+                    iconWrap.className = 'bookmark-icon';
+                    const mono = document.createElement('span');
+                    mono.className = 'bookmark-mono';
+                    mono.textContent = (bookmark.name || '?').trim().charAt(0) || '?';
+                    iconWrap.appendChild(mono);
+                    if (site.favicon) {
+                        const favicon = document.createElement('img');
+                        favicon.className = 'bookmark-favicon';
+                        favicon.alt = '';
+                        favicon.loading = 'lazy';
+                        favicon.decoding = 'async';
+                        favicon.referrerPolicy = 'no-referrer';
+                        favicon.addEventListener('load', () => {
+                            if (favicon.naturalWidth > 0) {
+                                favicon.classList.add('loaded');
+                                mono.style.opacity = '0';
+                            } else {
+                                favicon.remove();
+                            }
+                        });
+                        favicon.addEventListener('error', () => favicon.remove());
+                        favicon.src = site.favicon;
+                        iconWrap.appendChild(favicon);
+                    }
+                    link.appendChild(iconWrap);
+
                     const commentDiv = document.createElement('div');
                     commentDiv.className = 'xe-comment-entry';
                     const strongEl = document.createElement('strong');
                     strongEl.textContent = bookmark.name;
                     commentDiv.appendChild(strongEl);
+                    const domainEl = document.createElement('span');
+                    domainEl.className = 'bookmark-domain';
+                    domainEl.textContent = site.domain || String(bookmark.url || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+                    commentDiv.appendChild(domainEl);
                     link.appendChild(commentDiv);
                     cardDiv.appendChild(link);
                     const delBtn = document.createElement('button');
@@ -3607,6 +5936,7 @@
             renderShortcutsInline();
             renderBookmarks();
             startWfWorld();
+            startWfMarket();
             loadSearchEnginesConfig().finally(() => {
                 loadCustomEngines();
                 renderCustomEnginesIntoSearch();
