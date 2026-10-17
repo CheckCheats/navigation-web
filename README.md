@@ -17,3 +17,16 @@ node wf-market-proxy.mjs
 ## GitHub Pages
 
 仓库 Settings → Pages → Deploy from branch main / root。
+
+## Cloudflare Workers 免费部署（可选）
+
+不想在本机跑代理时，可以用 Cloudflare Worker 免费版同时托管页面和价格接口：
+
+1. 打开 [Cloudflare Dashboard](https://dash.cloudflare.com/) → **Workers & Pages** → **Create** → **Worker**。
+2. 名字随意（如 `warframe-pe`），点 **Deploy**。
+3. 点 **Edit code**，把 [`cloudflare-worker.mjs`](cloudflare-worker.mjs) 整个粘贴进去，再点 **Deploy**。
+4. 打开 `https://<名字>.<你的子域>.workers.dev/`，页面、Market 价格、世界状态都由 Worker 提供。
+
+Worker 会从本仓库 `main` 分支的 GitHub raw 读取静态文件，并代理 `/api/wf/orders` 与 `/api/wf/worldstate`。免费版额度是 100,000 请求/天、单次 10ms CPU，个人使用足够；接口结果缓存 25–30 秒。
+
+注意：`*.workers.dev` 在中国大陆可能无法直接访问，能访问时再用；需要长期使用可以给 Worker 绑定自定义域名。如果 fork 了仓库，记得改 `cloudflare-worker.mjs` 顶部的 `REPO` / `BRANCH`。
